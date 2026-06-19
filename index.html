@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Matoke Brian - AI Systems Engineer. Building AI systems that work in the real world.">
+    <title>Matoke Brian - AI Systems Engineer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        
+        a {
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            opacity: 0.7;
+        }
+        
+        /* Header */
+        header {
+            padding: 3rem 2rem;
+            border-bottom: 0.5px solid #e5e5e5;
+        }
+        
+        .header-content {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        
+        .label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            max-width: 520px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .links a {
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid #e5e5e5;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+        
+        /* Main content */
+        main {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+        
+        /* Cards */
+        .card {
+            background: #ffffff;
+            border: 0.5px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card h3 {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .card-meta {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 1rem;
+        }
+        
+        .card a {
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid #e5e5e5;
+            display: inline-block;
+        }
+        
+        /* Skills grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .skill-box {
+            padding: 1rem;
+            background: #f8f8f8;
+            border-radius: 6px;
+        }
+        
+        .skill-box p:first-child {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+        
+        .skill-box p:last-child {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        /* Education timeline */
+        .timeline {
+            border-left: 2px solid #e5e5e5;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .timeline-item h3 {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-item p {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+        }
+        
+        /* Footer */
+        footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem;
+            border-top: 0.5px solid #e5e5e5;
+        }
+        
+        .footer-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+        
+        .footer-links a {
+            padding: 0;
+            border-bottom: none;
+        }
+        
+        .divider {
+            color: #ccc;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            main {
+                padding: 2rem 1rem;
+            }
+            
+            header {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <p class="label">MATOKE BRIAN</p>
+            <h1>AI Systems Engineer</h1>
+            <p class="subtitle">I build AI systems that work in the real world. Data pipelines, machine learning, adversarial robustness, and the governance to deploy safely.</p>
+            <div class="links">
+                <a href="https://github.com/mattobryan">GitHub</a>
+                <a href="https://linkedin.com/in/matokebrian">LinkedIn</a>
+                <a href="https://medium.com/@mattobryan">Medium</a>
+                <a href="mailto:briaynomwamba@gmail.com">Email</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Projects -->
+        <section>
+            <h2>Projects</h2>
+            
+            <div class="card">
+                <h3>Pesa AI Logger</h3>
+                <p>Local-first M-Pesa financial intelligence. Reads transaction messages, categorizes spending automatically, generates personal financial insights. Built for Kenyans who use mobile money as their primary financial system.</p>
+                <p class="card-meta">Python, Flask, SQLite, Polygon blockchain</p>
+                <a href="https://github.com/mattobryan/Pesa-AI-Logger">View on GitHub</a>
+            </div>
+
+            <div class="card">
+                <h3>ComplianceEngineMVP</h3>
+                <p>Multi-tenant KDPA 2019 compliance automation. Questionnaire-driven scoping, automated documentation generation, tamper-evident audit logging. Helps small Kenyan businesses meet data protection obligations without external consultants.</p>
+                <p class="card-meta">FastAPI, Docker, JavaScript</p>
+                <a href="https://github.com/mattobryan/ComplianceEngineMVP">View on GitHub</a>
+            </div>
+
+            <div class="card">
+                <h3>Mail2Print</h3>
+                <p>Production automation daemon for Raspberry Pi and Linux. Monitors email inbox, automatically prints PDF attachments with duplicate detection and error recovery. Designed to run unattended.</p>
+                <p class="card-meta">Python, IMAP IDLE, systemd</p>
+                <a href="https://github.com/mattobryan/mail2print">View on GitHub</a>
+            </div>
+        </section>
+
+        <!-- Research & Work -->
+        <section>
+            <h2>Research & Professional Work</h2>
+            
+            <div class="card">
+                <h3>Adversarial Robustness Research</h3>
+                <p>Designed Adaptive Adversarial Training framework at University of Szeged. Achieved +6.9pp clean accuracy (81.3% to 88.2%) and +3.5pp union robustness over published RAMP baseline across three simultaneous threat models (L-inf, L2, L1).</p>
+                <p class="card-meta">MSc Dissertation, 2025 | PyTorch, CIFAR-10</p>
+            </div>
+
+            <div class="card">
+                <h3>Data Systems at Scale</h3>
+                <p>Built and maintained production ETL pipelines processing 20 million+ digitised citizen land records for Kenya's Joint National and Resource Mapping (JNAM) programme. Designed ingestion-stage validation that reduced data error rates by 50%+.</p>
+                <p class="card-meta">Konza Silicon, 2020–2022 | Led 12-person technical team</p>
+            </div>
+
+            <div class="card">
+                <h3>AI Automation & Data Governance</h3>
+                <p>Designed and deployed production AI automation platform at Tamu Group processing 100 documents per day with full data lineage and GDPR-aligned audit controls. Served as designated Data Protection Officer under Kenya DPA 2019. Zero data incidents through proactive governance architecture.</p>
+                <p class="card-meta">Tamu Group, 2025 | EU Foundation Certificate in Data Protection</p>
+            </div>
+        </section>
+
+        <!-- Skills -->
+        <section>
+            <h2>Technical Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-box">
+                    <p>AI/ML</p>
+                    <p>Adversarial robustness, LLM integration, RAG architectures, prompt engineering, model evaluation</p>
+                </div>
+                <div class="skill-box">
+                    <p>Data Engineering</p>
+                    <p>ETL/ELT pipelines, schema validation, data quality frameworks, large-scale processing (20M+ records)</p>
+                </div>
+                <div class="skill-box">
+                    <p>Programming</p>
+                    <p>Python (expert), SQL, Bash, JavaScript, FastAPI, Django</p>
+                </div>
+                <div class="skill-box">
+                    <p>Infrastructure</p>
+                    <p>GCP, Vertex AI, Docker, REST APIs, model deployment, GPU optimization</p>
+                </div>
+                <div class="skill-box">
+                    <p>Governance</p>
+                    <p>GDPR, Kenya DPA 2019, responsible AI, audit trails, DPIAs, privacy-by-design</p>
+                </div>
+                <div class="skill-box">
+                    <p>Leadership</p>
+                    <p>Team leadership (12+), code review, cross-functional coordination, staff training</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education -->
+        <section>
+            <h2>Education & Credentials</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Master of Science, Computer Science (AI/ML)</h3>
+                    <p>University of Szeged, Hungary | 2023–2025</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>EU Foundation Certificate in Data Protection</h3>
+                    <p>University of Szeged, Hungary | 2024</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>Bachelor of Science, Computer Science</h3>
+                    <p>Multimedia University of Kenya | 2019</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Writing & Community -->
+        <section>
+            <h2>Writing & Community</h2>
+            <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1rem;">Regular contributor to discussions on AI governance in Kenya and East Africa. Published analysis of Kenya's Artificial Intelligence Bill 2026. Active member of Effective Altruism Nairobi and volunteer at EAGx Berlin 2024.</p>
+            <a href="https://medium.com/@mattobryan" style="font-size: 14px; padding: 8px 0; border-bottom: 0.5px solid #e5e5e5; display: inline-block;">Read on Medium</a>
+        </section>
+    </main>
+
+    <footer>
+        <p class="footer-label">Get in touch</p>
+        <div class="footer-links">
+            <a href="mailto:briaynomwamba@gmail.com">briaynomwamba@gmail.com</a>
+            <span class="divider">•</span>
+            <a href="tel:+254718829629">+254 718 829 629</a>
+        </div>
+    </footer>
+</body>
+</html>
