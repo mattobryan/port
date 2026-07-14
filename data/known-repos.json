@@ -1,0 +1,10 @@
+{
+  "repos": [
+    { "repo": "mattobryan/Medlit", "status": "published", "updatedAt": "2026-07-13" },
+    { "repo": "mattobryan/dailystack", "status": "published", "updatedAt": "2026-07-13" },
+    { "repo": "mattobryan/zuio", "status": "published", "updatedAt": "2026-07-13" },
+    { "repo": "mattobryan/Pesa-AI-Logger", "status": "published", "updatedAt": "2026-07-13" },
+    { "repo": "mattobryan/ComplianceEngineMVP", "status": "published", "updatedAt": "2026-07-13" },
+    { "repo": "mattobryan/mail2print", "status": "published", "updatedAt": "2026-07-13" }
+  ]
+}

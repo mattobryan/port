@@ -1,0 +1,9 @@
+{
+  "name": "brian-matoke-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static portfolio site with a Vercel-serverless self-updating pipeline (see SETUP.md).",
+  "engines": {
+    "node": ">=18"
+  }
+}

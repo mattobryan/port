@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Matoke Brian - AI Systems Engineer. Building AI systems that work in the real world.">
-    <title>Matoke Brian - AI Systems Engineer</title>
+    <meta name="description" content="Brian Matoke - AI Systems Engineer & Data Protection Officer. Building AI systems that work in the real world.">
+    <title>Brian Matoke - AI Systems Engineer</title>
 
-    <meta property="og:title" content="Matoke Brian — AI Systems Engineer">
-    <meta property="og:description" content="Data pipelines, machine learning, adversarial robustness, and the governance to deploy AI safely. Portfolio, projects, and demos.">
+    <meta property="og:title" content="Brian Matoke — AI Systems Engineer">
+    <meta property="og:description" content="Data pipelines, machine learning, adversarial robustness, and the governance to deploy AI safely. Portfolio, projects, and live demos.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Matoke Brian — AI Systems Engineer">
+    <meta name="twitter:title" content="Brian Matoke — AI Systems Engineer">
     <meta name="twitter:description" content="Data pipelines, machine learning, adversarial robustness, and the governance to deploy AI safely.">
 
     <style>
@@ -52,8 +52,6 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html { scroll-behavior: smooth; }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
             background: var(--bg);
@@ -70,11 +68,13 @@
             border-radius: 2px;
         }
 
+        button { font: inherit; background: none; border: none; cursor: pointer; color: inherit; }
+
         /* Topbar */
         .topbar {
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 20;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -85,34 +85,35 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .wordmark {
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-        }
+        .wordmark { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; flex: 0 0 auto; }
 
-        .topnav {
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
+        .topnav { display: flex; gap: 4px; flex-wrap: wrap; }
 
-        .topnav a {
+        .topnav button {
             font-size: 12.5px;
             color: var(--ink-soft);
             font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 7px;
         }
 
-        .topnav a:hover { color: var(--accent); opacity: 1; }
+        .topnav button:hover { color: var(--accent); }
+        .topnav button.active { color: var(--accent); background: var(--accent-soft); }
 
-        /* Grid */
-        .bento {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 1.25rem 1.5rem 3rem;
+        main { max-width: 1280px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; }
+
+        .view { display: none; }
+        .view.active { display: block; animation: fade-in 220ms ease; }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Generic bento grid used inside views */
+        .grid {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            grid-auto-rows: minmax(auto, auto);
             grid-auto-flow: dense;
             gap: 14px;
         }
@@ -123,19 +124,9 @@
             border-radius: 14px;
             padding: 1.5rem;
             transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
-            opacity: 0;
-            transform: translateY(6px);
         }
 
-        .tile.is-visible { opacity: 1; transform: translateY(0); }
-
-        .tile:hover {
-            border-color: var(--border-strong);
-            box-shadow: 0 10px 28px rgba(10, 10, 11, 0.06);
-            transform: translateY(-2px);
-        }
-
-        .tile.is-visible:hover { transform: translateY(-2px); }
+        .tile:hover { border-color: var(--border-strong); box-shadow: 0 10px 28px rgba(10, 10, 11, 0.06); }
 
         .span-4  { grid-column: span 4; }
         .span-6  { grid-column: span 6; }
@@ -144,318 +135,123 @@
 
         .tile h2, .tile h3 { font-weight: 650; letter-spacing: -0.01em; }
 
-        /* Hero tile */
-        .tile-hero {
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
+        /* Hero / about tile */
+        .tile-hero { position: relative; overflow: hidden; display: flex; gap: 1.5rem; align-items: flex-start; }
         .tile-hero::before {
             content: "";
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: radial-gradient(circle at 100% 0%, var(--accent-glow), transparent 60%);
             pointer-events: none;
         }
 
-        .eyebrow {
-            font-size: 12px;
-            color: var(--ink-faint);
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.6rem;
+        .avatar {
+            position: relative;
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            overflow: hidden;
+            background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .avatar-fallback {
+            color: #fff; font-size: 26px; font-weight: 700; letter-spacing: 0.02em;
         }
 
-        .tile-hero h1 {
-            font-size: clamp(30px, 4.2vw, 46px);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1.08;
-            margin-bottom: 0.85rem;
-        }
+        .hero-body { flex: 1 1 auto; min-width: 0; }
 
-        .tile-hero .lede {
-            font-size: 15px;
-            color: var(--ink-soft);
-            max-width: 46ch;
-            margin-bottom: 0.75rem;
-        }
+        .eyebrow { font-size: 12px; color: var(--ink-faint); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
 
-        .tile-hero .loc {
-            font-size: 12.5px;
-            color: var(--ink-faint);
-            margin-bottom: 1.25rem;
-        }
+        .tile-hero h1 { font-size: clamp(26px, 3.6vw, 38px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.6rem; }
 
-        .hero-links {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
+        .role-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 0.85rem; }
+        .role-chip { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 
-        .hero-links a {
-            font-size: 13px;
-            font-weight: 500;
-            padding: 7px 13px;
-            border: 1px solid var(--border-strong);
-            border-radius: 999px;
-        }
+        .tile-hero .lede { font-size: 14.5px; color: var(--ink-soft); max-width: 62ch; margin-bottom: 0.65rem; }
+        .tile-hero .loc { font-size: 12.5px; color: var(--ink-faint); margin-bottom: 1.1rem; }
 
-        .hero-links a:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            opacity: 1;
+        .hero-links { display: flex; gap: 14px; flex-wrap: wrap; }
+        .hero-links a { font-size: 13px; font-weight: 500; padding: 7px 13px; border: 1px solid var(--border-strong); border-radius: 999px; }
+        .hero-links a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+        .jump-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.25rem; }
+        .jump-links button {
+            font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+            background: var(--tile-bg); border: 1px solid var(--border-strong); color: var(--ink);
         }
+        .jump-links button:hover { border-color: var(--accent); color: var(--accent); }
 
         /* Languages tile */
-        .lang-donut-row {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            margin: 0.9rem 0 1.1rem;
-        }
+        .lang-donut-row { display: flex; align-items: center; gap: 1.25rem; margin: 0.9rem 0 1.1rem; }
+        .lang-donut { width: 108px; height: 108px; border-radius: 50%; flex: 0 0 auto; position: relative; }
+        .lang-donut::after { content: ""; position: absolute; inset: 20px; border-radius: 50%; background: var(--tile-bg); }
+        .lang-legend { display: flex; flex-direction: column; gap: 7px; flex: 1 1 auto; }
+        .lang-chip { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--ink-soft); }
+        .lang-chip .lang-chip-name { display: inline-flex; align-items: center; gap: 6px; }
+        .lang-chip .lang-chip-pct { font-variant-numeric: tabular-nums; color: var(--ink-faint); }
+        .lang-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: 0 0 auto; }
+        .lang-note { font-size: 11px; color: var(--ink-faint); margin-bottom: 1.1rem; line-height: 1.5; }
 
-        .lang-donut {
-            width: 108px;
-            height: 108px;
-            border-radius: 50%;
-            flex: 0 0 auto;
-            background: conic-gradient(
-                #3572A5 0% 48.4%,
-                #F1E05A 48.4% 81.4%,
-                #A97BFF 81.4% 88.7%,
-                #3178C6 88.7% 93.8%,
-                #E34C26 93.8% 97.3%,
-                #9CA3AF 97.3% 100%
-            );
-            position: relative;
-        }
+        .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag { font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 500; }
 
-        .lang-donut::after {
-            content: "";
-            position: absolute;
-            inset: 20px;
-            border-radius: 50%;
-            background: var(--tile-bg);
-        }
+        h2.section-title { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.75rem; }
 
-        .lang-donut-label {
-            position: absolute;
-            inset: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
+        /* Projects view: sidebar + detail */
+        .projects-shell { display: grid; grid-template-columns: 240px 1fr; gap: 14px; align-items: start; }
 
-        .lang-donut-label strong {
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.1;
+        .projects-sidebar {
+            background: var(--tile-bg); border: 1px solid var(--border); border-radius: 14px;
+            padding: 0.6rem; position: sticky; top: 70px;
         }
-
-        .lang-donut-label span {
-            font-size: 10px;
-            color: var(--ink-faint);
-        }
-
-        .lang-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            flex: 1 1 auto;
-        }
-
-        .lang-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12.5px;
+        .project-nav-item {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            width: 100%; text-align: left; padding: 9px 10px; border-radius: 9px; font-size: 13px; font-weight: 500;
             color: var(--ink-soft);
         }
+        .project-nav-item:hover { background: var(--border); color: var(--ink); }
+        .project-nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+        .project-nav-item .dot { width: 6px; height: 6px; border-radius: 50%; flex: 0 0 auto; }
+        .project-nav-item .dot.live { background: var(--live); }
+        .project-nav-item .dot.private { background: var(--private); }
 
-        .lang-chip {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--ink-soft);
+        .project-detail { background: var(--tile-bg); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; min-height: 320px; }
+
+        .card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 0.5rem; }
+        .card-head h3 { font-size: 18px; }
+        .card-summary { font-size: 14px; color: var(--ink-soft); margin-bottom: 0.85rem; }
+        .card-story { font-size: 13px; color: var(--ink-soft); margin-bottom: 0.9rem; line-height: 1.7; }
+        .card-story strong { color: var(--ink); font-weight: 600; }
+        .card-meta { font-size: 11.5px; color: var(--ink-faint); margin-bottom: 0.9rem; }
+        .card-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+        .card-actions a { font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border-strong); }
+        .card-actions a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+
+        .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+        .badge-live { background: var(--live-soft); color: var(--live); }
+        .badge-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--live); display: inline-block; }
+        .badge-private { background: var(--private-soft); color: var(--private); }
+        .private-note { font-size: 12px; color: var(--ink-faint); }
+
+        .demo-embed {
+            border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 1rem;
         }
-
-        .lang-chip .lang-chip-name {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .demo-embed .chrome-bar {
+            display: flex; align-items: center; gap: 6px; padding: 7px 9px;
+            background: var(--bg); border-bottom: 1px solid var(--border);
         }
-
-        .lang-chip .lang-chip-pct {
-            font-variant-numeric: tabular-nums;
-            color: var(--ink-faint);
-        }
-
-        .lang-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            flex: 0 0 auto;
-        }
-
-        .lang-note {
-            font-size: 11px;
-            color: var(--ink-faint);
-            margin-bottom: 1.1rem;
-            line-height: 1.5;
-        }
-
-        .tag-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .tag {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 999px;
-            background: var(--accent-soft);
-            color: var(--accent);
-            font-weight: 500;
-        }
-
-        /* Browser-chrome demo preview */
-        .demo-frame {
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            margin-bottom: 0.9rem;
-        }
-
-        .demo-frame .chrome-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 9px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-        }
-
         .chrome-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
         .chrome-dot.r { background: #EF6A5F; }
         .chrome-dot.y { background: #F5BD4F; }
         .chrome-dot.g { background: #61C454; }
-
-        .demo-frame .chrome-url {
-            margin-left: 6px;
-            font-size: 10px;
-            color: var(--ink-faint);
-            background: var(--tile-bg);
-            padding: 3px 10px;
-            border-radius: 6px;
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .demo-embed .chrome-url {
+            margin-left: 6px; font-size: 10.5px; color: var(--ink-faint); background: var(--tile-bg);
+            padding: 3px 10px; border-radius: 6px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
+        .demo-embed .chrome-url a { color: inherit; }
+        .demo-embed iframe { display: block; width: 100%; height: 460px; border: 0; background: var(--bg); }
 
-        .demo-frame .chrome-body {
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            color: var(--accent);
-            background:
-                radial-gradient(circle at 15% 20%, var(--accent-glow), transparent 55%),
-                radial-gradient(circle at 85% 80%, var(--accent-glow), transparent 55%),
-                var(--tile-bg);
-        }
-
-        .tile-project.span-8 .demo-frame .chrome-body { height: 150px; }
-
-        /* Project tiles */
-        .tile-project h3 { font-size: 16px; margin-bottom: 0.5rem; }
-
-        .card-head {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 0.5rem;
-        }
-
-        .card-summary {
-            font-size: 13.5px;
-            color: var(--ink-soft);
-            margin-bottom: 0.65rem;
-        }
-
-        .card-story {
-            font-size: 12.5px;
-            color: var(--ink-soft);
-            margin-bottom: 0.85rem;
-            line-height: 1.65;
-        }
-
-        .card-story strong { color: var(--ink); font-weight: 600; }
-
-        .card-meta {
-            font-size: 11.5px;
-            color: var(--ink-faint);
-            margin-bottom: 0.85rem;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .card-actions a {
-            font-size: 13px;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border-strong);
-        }
-
-        .card-actions a:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 9px;
-            border-radius: 999px;
-        }
-
-        .badge-live { background: var(--live-soft); color: var(--live); }
-        .badge-live::before {
-            content: "";
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--live);
-            display: inline-block;
-        }
-        .badge-private { background: var(--private-soft); color: var(--private); }
-
-        .private-note { font-size: 11.5px; color: var(--ink-faint); }
-
-        .cta-tile {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
+        .cta-tile { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 0.5rem; }
         .cta-tile h3 { font-size: 15px; }
         .cta-tile p { font-size: 12.5px; color: var(--ink-soft); }
         .cta-tile .cta-link { font-size: 13px; font-weight: 600; color: var(--accent); }
@@ -472,303 +268,263 @@
 
         .writing-text { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 0.85rem; }
 
-        /* Contact bar */
-        .tile-contact {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
-            padding: 1.1rem 1.5rem;
-        }
-
+        /* Contact */
+        .tile-contact { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1.1rem 1.5rem; }
         .tile-contact .footer-label { font-size: 13px; color: var(--ink-soft); }
         .footer-links { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 13.5px; font-weight: 500; }
         .divider { color: var(--ink-faint); }
 
-        h2.section-title {
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--ink-faint);
-            margin-bottom: 0.75rem;
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
-            .tile { transition: none !important; opacity: 1 !important; transform: none !important; }
-        }
+        .data-error { font-size: 13px; color: var(--ink-soft); padding: 2rem; text-align: center; }
 
         /* Tablet */
         @media (max-width: 900px) {
             .span-4, .span-6, .span-8 { grid-column: span 6; }
+            .projects-shell { grid-template-columns: 1fr; }
+            .projects-sidebar { position: static; display: flex; flex-wrap: wrap; gap: 6px; }
+            .project-nav-item { width: auto; }
         }
 
         /* Mobile */
         @media (max-width: 620px) {
-            .bento { padding: 1rem 1rem 2.5rem; gap: 10px; }
+            main { padding: 1rem 1rem 2.5rem; }
+            .grid { gap: 10px; }
             .topbar { padding: 0.8rem 1rem; gap: 0.75rem; }
-            .topnav {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                gap: 14px;
-                scrollbar-width: none;
-            }
+            .topnav { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; }
             .topnav::-webkit-scrollbar { display: none; }
-            .topnav a { flex: 0 0 auto; }
+            .topnav button { flex: 0 0 auto; }
             .span-4, .span-6, .span-8, .span-12 { grid-column: span 12; }
-            .tile { padding: 1.25rem; }
+            .tile, .project-detail { padding: 1.25rem; }
+            .tile-hero { flex-direction: column; }
+            .demo-embed iframe { height: 320px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .view.active { animation: none; }
         }
     </style>
 </head>
 <body>
     <nav class="topbar">
-        <span class="wordmark">MATOKE BRIAN</span>
-        <div class="topnav">
-            <a href="#projects">Projects</a>
-            <a href="#languages">Languages</a>
-            <a href="#research">Research</a>
-            <a href="#education">Education</a>
-            <a href="#writing">Writing</a>
-            <a href="#contact">Contact</a>
+        <span class="wordmark" id="wordmark">PORTFOLIO</span>
+        <div class="topnav" id="topnav">
+            <button data-view="home">Home</button>
+            <button data-view="projects">Projects</button>
+            <button data-view="research">Research</button>
+            <button data-view="education">Education</button>
+            <button data-view="writing">Writing</button>
+            <button data-view="contact">Contact</button>
         </div>
     </nav>
 
-    <main class="bento">
-
-        <!-- Hero -->
-        <div class="tile tile-hero span-8">
-            <p class="eyebrow">AI SYSTEMS ENGINEER</p>
-            <h1>I build AI systems that work in the real world.</h1>
-            <p class="lede">Data pipelines, machine learning, adversarial robustness, and the governance to deploy safely. Started digitising 20M+ land records in Kenya, went to Hungary to study how models fail under attack, came back to keep building.</p>
-            <p class="loc">Nairobi, Kenya · MSc AI/ML, University of Szeged</p>
-            <div class="hero-links">
-                <a href="https://github.com/mattobryan" target="_blank" rel="noopener">GitHub</a>
-                <a href="https://linkedin.com/in/matokebrian" target="_blank" rel="noopener">LinkedIn</a>
-                <a href="https://medium.com/@mattobryan" target="_blank" rel="noopener">Medium</a>
-                <a href="mailto:briaynomwamba@gmail.com">Email</a>
-            </div>
-        </div>
-
-        <!-- Languages -->
-        <div class="tile span-4" id="languages">
-            <h2 class="section-title">Languages · across all repos</h2>
-            <div class="lang-donut-row">
-                <div class="lang-donut" role="img" aria-label="Language usage: Python 48%, JavaScript 33%, Kotlin 7%, TypeScript 5%, HTML 4%, Other 3%">
-                    <div class="lang-donut-label"><strong>48%</strong><span>Python</span></div>
-                </div>
-                <div class="lang-legend">
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#3572A5"></span>Python</span><span class="lang-chip-pct">48.4%</span></span>
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#F1E05A"></span>JavaScript</span><span class="lang-chip-pct">33.0%</span></span>
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#A97BFF"></span>Kotlin</span><span class="lang-chip-pct">7.3%</span></span>
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#3178C6"></span>TypeScript</span><span class="lang-chip-pct">5.1%</span></span>
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#E34C26"></span>HTML</span><span class="lang-chip-pct">3.5%</span></span>
-                    <span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:#9CA3AF"></span>Other</span><span class="lang-chip-pct">2.7%</span></span>
-                </div>
-            </div>
-            <p class="lang-note">Computed from the GitHub API's per-repo language byte counts, summed across 13 non-fork repositories.</p>
-            <h2 class="section-title">Focus areas</h2>
-            <div class="tag-row">
-                <span class="tag">Adversarial ML</span>
-                <span class="tag">LLM / RAG</span>
-                <span class="tag">Data Governance</span>
-                <span class="tag">ETL at Scale</span>
-                <span class="tag">Team Leadership</span>
-            </div>
-        </div>
-
-        <!-- Projects -->
-        <div class="tile tile-project span-8" id="projects">
-            <div class="card-head">
-                <h3>MedLit Search</h3>
-                <span class="badge badge-live">Live Demo</span>
-            </div>
-            <div class="demo-frame">
-                <div class="chrome-bar">
-                    <span class="chrome-dot r"></span><span class="chrome-dot y"></span><span class="chrome-dot g"></span>
-                    <span class="chrome-url">mattobryan.github.io/Medlit</span>
-                </div>
-                <div class="chrome-body">6 databases · PICO search · AI synthesis</div>
-            </div>
-            <p class="card-summary">Clinical literature search across 6 free databases simultaneously, with one-click routed access to 8 paywalled databases and AI-powered evidence synthesis.</p>
-            <p class="card-story"><strong>The problem:</strong> researchers and clinicians juggle six or more separate database search interfaces and manually re-run the same query on each one, then manually work out which results they can actually reach through their institution's paywall access. <strong>The approach:</strong> a single-file React app that queries PubMed, Europe PMC, Semantic Scholar, OpenAlex, CrossRef, and DOAJ in parallel, auto-detects study type, offers a structured PICO search mode, checks Unpaywall for legal open-access copies, and — with the visitor's own Anthropic API key — asks Claude to synthesise up to 20 papers into an evidence-quality summary. <strong>The outcome:</strong> a zero-install, zero-cost tool that ships as one static HTML file on GitHub Pages.</p>
-            <p class="card-meta">React 18 (CDN), Babel Standalone, PubMed / Europe PMC / Semantic Scholar / OpenAlex / CrossRef / DOAJ / Unpaywall APIs, Claude</p>
-            <div class="card-actions">
-                <a href="https://mattobryan.github.io/Medlit/" target="_blank" rel="noopener">Open Live Demo ↗</a>
-                <a href="https://github.com/mattobryan/Medlit" target="_blank" rel="noopener">View on GitHub</a>
-            </div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>DailyStack</h3>
-                <span class="badge badge-live">Live Demo</span>
-            </div>
-            <div class="demo-frame">
-                <div class="chrome-bar">
-                    <span class="chrome-dot r"></span><span class="chrome-dot y"></span><span class="chrome-dot g"></span>
-                    <span class="chrome-url">mattobryan.github.io/dailystack</span>
-                </div>
-                <div class="chrome-body">Habits · goals · reminders</div>
-            </div>
-            <p class="card-summary">Offline-first habit and life tracker with SMART goals, analytics, and time-gated reminders.</p>
-            <p class="card-story"><strong>Problem:</strong> most habit trackers need a constant connection and stop being useful the moment daily life gets in the way. <strong>Approach:</strong> an offline-first tracker with SMART goals and analytics that work whether or not you're online. <strong>Outcome:</strong> built for actually sticking with a habit, not just logging one entry.</p>
-            <p class="card-meta">JavaScript</p>
-            <div class="card-actions">
-                <a href="https://mattobryan.github.io/dailystack/" target="_blank" rel="noopener">Live Demo ↗</a>
-                <a href="https://github.com/mattobryan/dailystack" target="_blank" rel="noopener">GitHub</a>
-            </div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>ZUIO</h3>
-                <span class="badge badge-live">Live Demo</span>
-            </div>
-            <div class="demo-frame">
-                <div class="chrome-bar">
-                    <span class="chrome-dot r"></span><span class="chrome-dot y"></span><span class="chrome-dot g"></span>
-                    <span class="chrome-url">mattobryan.github.io/zuio</span>
-                </div>
-                <div class="chrome-body">🦁 ZUIO — word game</div>
-            </div>
-            <p class="card-summary">A Kenyan word-guessing party game — describe the word without using any of the banned words.</p>
-            <p class="card-story"><strong>Problem:</strong> wanted a lightweight, distinctly Kenyan party game friends could play in a browser. <strong>Approach:</strong> describe the word, avoid the banned list, score points before time runs out. <strong>Outcome:</strong> a fun, shareable local twist on a classic format.</p>
-            <p class="card-meta">JavaScript</p>
-            <div class="card-actions">
-                <a href="https://mattobryan.github.io/zuio/" target="_blank" rel="noopener">Live Demo ↗</a>
-                <a href="https://github.com/mattobryan/zuio" target="_blank" rel="noopener">GitHub</a>
-            </div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>Pesa AI Logger</h3>
-                <span class="badge badge-private">🔒 Private</span>
-            </div>
-            <p class="card-summary">Local-first M-Pesa financial intelligence. Parses transaction SMS, categorises spending automatically.</p>
-            <p class="card-story"><strong>Problem:</strong> Kenyans run their financial lives through M-Pesa but can't easily see spending patterns across scattered SMS. <strong>Approach:</strong> a local Python/Flask parser with Polygon-blockchain tamper-evident logging, nothing sent to a third-party server. <strong>Outcome:</strong> SMS history becomes a usable finance dashboard.</p>
-            <p class="card-meta">Python, Flask, SQLite, Polygon</p>
-            <div class="card-actions"><span class="private-note">Not yet public.</span></div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>ComplianceEngineMVP</h3>
-                <span class="badge badge-private">🔒 Private</span>
-            </div>
-            <p class="card-summary">Multi-tenant KDPA 2019 compliance automation with tamper-evident audit logging.</p>
-            <p class="card-story"><strong>Problem:</strong> small Kenyan businesses can't afford consultants for KDPA 2019 compliance, so most skip it. <strong>Approach:</strong> a FastAPI/Docker platform that scopes compliance via questionnaire and auto-generates documentation. <strong>Outcome:</strong> compliance becomes achievable for businesses that would otherwise ignore it.</p>
-            <p class="card-meta">FastAPI, Docker, JavaScript</p>
-            <div class="card-actions"><span class="private-note">Not yet public.</span></div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>Mail2Print</h3>
-                <span class="badge badge-private">🔒 Private</span>
-            </div>
-            <p class="card-summary">Unattended print automation daemon for Raspberry Pi and Linux.</p>
-            <p class="card-story"><strong>Problem:</strong> unattended print stations need emailed PDFs printed without a human watching. <strong>Approach:</strong> a daemon watching an inbox via IMAP IDLE, with duplicate detection and error recovery. <strong>Outcome:</strong> email a PDF, and it's already printed.</p>
-            <p class="card-meta">Python, IMAP IDLE, systemd</p>
-            <div class="card-actions"><span class="private-note">Not yet public.</span></div>
-        </div>
-
-        <div class="tile tile-project span-4">
-            <div class="card-head">
-                <h3>Sheria AI</h3>
-                <span class="badge badge-private">🔒 Private</span>
-            </div>
-            <p class="card-summary">RAG legal research system for Kenya — semantic search over case law and statutes.</p>
-            <p class="card-story"><strong>Problem:</strong> Kenyan legal research is scattered with no semantic search. <strong>Approach:</strong> FastAPI + pgvector + BGE-M3 embeddings + React, built alongside a research paper targeting JIPIT Strathmore. <strong>Outcome:</strong> proof that RAG legal tools can be built for Kenyan law specifically.</p>
-            <p class="card-meta">FastAPI, pgvector, BGE-M3, React</p>
-            <div class="card-actions"><span class="private-note">Not yet public.</span></div>
-        </div>
-
-        <div class="tile cta-tile span-4">
-            <h3>Everything else is on GitHub</h3>
-            <p>More projects, experiments, and forks live in the repo history — most are private for now, moving to public over time.</p>
-            <a class="cta-link" href="https://github.com/mattobryan" target="_blank" rel="noopener">See the full profile ↗</a>
-        </div>
-
-        <!-- Research -->
-        <div class="tile tile-research span-4" id="research">
-            <h3>Adversarial Robustness Research</h3>
-            <p class="desc">Designed an Adaptive Adversarial Training framework at University of Szeged. +6.9pp clean accuracy (81.3%→88.2%) and +3.5pp union robustness over the published RAMP baseline across three simultaneous threat models (L-inf, L2, L1).</p>
-            <p class="meta">MSc Dissertation, 2025 · PyTorch, CIFAR-10</p>
-        </div>
-
-        <div class="tile tile-research span-4">
-            <h3>Data Systems at Scale</h3>
-            <p class="desc">Built and maintained ETL pipelines processing 20M+ digitised citizen land records for Kenya's Joint National and Resource Mapping (JNAM) programme. Ingestion-stage validation cut data error rates by 50%+.</p>
-            <p class="meta">Konza Silicon, 2020–2022 · Led a 12-person team</p>
-        </div>
-
-        <div class="tile tile-research span-4">
-            <h3>AI Automation & Data Governance</h3>
-            <p class="desc">Designed and deployed a production AI automation platform at Tamu Group processing 100 documents/day with full data lineage and GDPR-aligned audit controls. Served as Data Protection Officer under Kenya DPA 2019.</p>
-            <p class="meta">Tamu Group, 2025 · EU Foundation Certificate in Data Protection</p>
-        </div>
-
-        <!-- Education -->
-        <div class="tile span-6" id="education">
-            <h2 class="section-title">Education & Credentials</h2>
-            <div class="timeline-item">
-                <h3>MSc Computer Science (AI/ML)</h3>
-                <p>University of Szeged, Hungary · 2023–2025</p>
-            </div>
-            <div class="timeline-item">
-                <h3>EU Foundation Certificate in Data Protection</h3>
-                <p>University of Szeged, Hungary · 2024</p>
-            </div>
-            <div class="timeline-item">
-                <h3>BSc Computer Science</h3>
-                <p>Multimedia University of Kenya · 2019</p>
-            </div>
-        </div>
-
-        <!-- Writing -->
-        <div class="tile span-6" id="writing">
-            <h2 class="section-title">Writing & Community</h2>
-            <p class="writing-text">Regular contributor to discussions on AI governance in Kenya and East Africa. Published analysis of Kenya's Artificial Intelligence Bill 2026. Active member of Effective Altruism Nairobi and volunteer at EAGx Berlin 2024.</p>
-            <a href="https://medium.com/@mattobryan" target="_blank" rel="noopener" style="font-size:13px; font-weight:600; color: var(--accent);">Read on Medium ↗</a>
-        </div>
-
-        <!-- Contact -->
-        <div class="tile tile-contact span-12" id="contact">
-            <span class="footer-label">Get in touch</span>
-            <div class="footer-links">
-                <a href="mailto:briaynomwamba@gmail.com">briaynomwamba@gmail.com</a>
-                <span class="divider">•</span>
-                <a href="tel:+254718829629">+254 718 829 629</a>
-            </div>
-        </div>
-
+    <main id="app">
+        <div class="data-error" id="loading">Loading…</div>
     </main>
 
     <script>
-        (function () {
-            var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var tiles = document.querySelectorAll('.tile');
+    (function () {
+        var VIEWS = ['home', 'projects', 'research', 'education', 'writing', 'contact'];
+        var app = document.getElementById('app');
+        var topnav = document.getElementById('topnav');
+        var currentProjectId = null;
+        var DATA = null;
 
-            if (reduceMotion || !('IntersectionObserver' in window)) {
-                tiles.forEach(function (el) { el.classList.add('is-visible'); });
-                return;
-            }
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
 
-            var observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
+        function donutGradient(stats) {
+            var acc = 0, stops = [];
+            stats.forEach(function (s) {
+                var start = acc, end = acc + s.pct;
+                stops.push(s.color + ' ' + start + '% ' + end + '%');
+                acc = end;
+            });
+            return 'conic-gradient(' + stops.join(', ') + ')';
+        }
 
-            tiles.forEach(function (el) { observer.observe(el); });
-        })();
+        function renderHome() {
+            var p = DATA.profile;
+            var initials = esc(p.initials || '');
+            return (
+                '<div class="grid">' +
+                '<div class="tile tile-hero span-8">' +
+                    '<div class="avatar">' +
+                        '<img src="' + esc(p.avatar) + '" alt="Photo of ' + esc(p.name) + '" ' +
+                            'onerror="this.style.display=\'none\'">' +
+                        '<span class="avatar-fallback">' + initials + '</span>' +
+                    '</div>' +
+                    '<div class="hero-body">' +
+                        '<p class="eyebrow">' + esc((p.roles || [])[0] || '') + '</p>' +
+                        '<h1>' + esc(p.name) + '</h1>' +
+                        '<div class="role-row">' + (p.roles || []).map(function (r) { return '<span class="role-chip">' + esc(r) + '</span>'; }).join('') + '</div>' +
+                        '<p class="lede">' + esc(p.tagline) + '</p>' +
+                        (p.bio || []).map(function (para) { return '<p class="lede">' + esc(para) + '</p>'; }).join('') +
+                        '<p class="loc">' + esc(p.location) + '</p>' +
+                        '<div class="hero-links">' +
+                            (p.links || []).map(function (l) {
+                                var external = /^https?:/.test(l.url);
+                                return '<a href="' + esc(l.url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + '>' + esc(l.label) + '</a>';
+                            }).join('') +
+                        '</div>' +
+                        '<div class="jump-links">' +
+                            '<button data-view="projects">See my projects →</button>' +
+                            '<button data-view="research">Research & work →</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="tile span-4">' +
+                    '<h2 class="section-title">Languages · across all repos</h2>' +
+                    '<div class="lang-donut-row">' +
+                        '<div class="lang-donut" style="background:' + donutGradient(DATA.languages.stats) + '" role="img" aria-label="Language usage breakdown"></div>' +
+                        '<div class="lang-legend">' +
+                            DATA.languages.stats.map(function (s) {
+                                return '<span class="lang-chip"><span class="lang-chip-name"><span class="lang-dot" style="background:' + s.color + '"></span>' + esc(s.name) + '</span><span class="lang-chip-pct">' + s.pct + '%</span></span>';
+                            }).join('') +
+                        '</div>' +
+                    '</div>' +
+                    '<p class="lang-note">' + esc(DATA.languages.note) + ' (' + DATA.languages.repoCount + ' repos, last updated ' + esc(DATA.languages.updatedAt) + ')</p>' +
+                    '<h2 class="section-title">Focus areas</h2>' +
+                    '<div class="tag-row">' + DATA.focusAreas.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+                '</div>' +
+                '</div>'
+            );
+        }
+
+        function projectDemoBlock(proj) {
+            if (!proj.demoUrl) return '';
+            return (
+                '<div class="demo-embed">' +
+                    '<div class="chrome-bar">' +
+                        '<span class="chrome-dot r"></span><span class="chrome-dot y"></span><span class="chrome-dot g"></span>' +
+                        '<span class="chrome-url"><a href="' + esc(proj.demoUrl) + '" target="_blank" rel="noopener">' + esc(proj.demoUrl.replace(/^https?:\/\//, '')) + '</a></span>' +
+                    '</div>' +
+                    '<iframe src="' + esc(proj.demoUrl) + '" loading="lazy" title="Live demo of ' + esc(proj.name) + '" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>' +
+                '</div>'
+            );
+        }
+
+        function projectDetailHtml(proj) {
+            var badge = proj.visibility === 'private'
+                ? '<span class="badge badge-private">🔒 Private</span>'
+                : (proj.demoUrl ? '<span class="badge badge-live">Live Demo</span>' : '');
+            var story = '<strong>Problem:</strong> ' + esc(proj.problem) + ' <strong>Approach:</strong> ' + esc(proj.approach) + ' <strong>Outcome:</strong> ' + esc(proj.outcome);
+            var actions = '';
+            if (proj.demoUrl) actions += '<a href="' + esc(proj.demoUrl) + '" target="_blank" rel="noopener">Open in new tab ↗</a>';
+            if (proj.repoUrl) actions += '<a href="' + esc(proj.repoUrl) + '" target="_blank" rel="noopener">View on GitHub</a>';
+            if (!proj.demoUrl && !proj.repoUrl) actions = '<span class="private-note">Not yet public.</span>';
+
+            return (
+                '<div class="card-head"><h3>' + esc(proj.name) + '</h3>' + badge + '</div>' +
+                projectDemoBlock(proj) +
+                '<p class="card-summary">' + esc(proj.summary) + '</p>' +
+                '<p class="card-story">' + story + '</p>' +
+                '<p class="card-meta">' + esc(proj.stack) + '</p>' +
+                '<div class="card-actions">' + actions + '</div>'
+            );
+        }
+
+        function renderProjectsSidebar() {
+            return DATA.projects.map(function (proj) {
+                var dotClass = proj.visibility === 'private' ? 'private' : 'live';
+                var active = proj.id === currentProjectId ? ' active' : '';
+                return '<button class="project-nav-item' + active + '" data-project="' + esc(proj.id) + '">' +
+                    '<span>' + esc(proj.name) + '</span><span class="dot ' + dotClass + '"></span></button>';
+            }).join('');
+        }
+
+        function renderProjects() {
+            if (!currentProjectId && DATA.projects.length) currentProjectId = DATA.projects[0].id;
+            var proj = DATA.projects.find(function (p) { return p.id === currentProjectId; }) || DATA.projects[0];
+            return (
+                '<div class="projects-shell">' +
+                    '<div class="projects-sidebar" id="projects-sidebar">' + renderProjectsSidebar() + '</div>' +
+                    '<div class="project-detail" id="project-detail">' + (proj ? projectDetailHtml(proj) : '') + '</div>' +
+                '</div>'
+            );
+        }
+
+        function selectProject(id) {
+            currentProjectId = id;
+            document.getElementById('projects-sidebar').innerHTML = renderProjectsSidebar();
+            var proj = DATA.projects.find(function (p) { return p.id === id; });
+            document.getElementById('project-detail').innerHTML = proj ? projectDetailHtml(proj) : '';
+            bindProjectSidebar();
+        }
+
+        function bindProjectSidebar() {
+            var sidebar = document.getElementById('projects-sidebar');
+            if (!sidebar) return;
+            sidebar.querySelectorAll('[data-project]').forEach(function (btn) {
+                btn.addEventListener('click', function () { selectProject(btn.dataset.project); });
+            });
+        }
+
+        function renderResearch() {
+            return '<div class="grid">' + DATA.research.map(function (r) {
+                return '<div class="tile tile-research span-4"><h3>' + esc(r.name) + '</h3><p class="desc">' + esc(r.desc) + '</p><p class="meta">' + esc(r.meta) + '</p></div>';
+            }).join('') + '</div>';
+        }
+
+        function renderEducation() {
+            return '<div class="grid"><div class="tile span-12"><h2 class="section-title">Education & Credentials</h2>' +
+                DATA.education.map(function (e) {
+                    return '<div class="timeline-item"><h3>' + esc(e.name) + '</h3><p>' + esc(e.meta) + '</p></div>';
+                }).join('') + '</div></div>';
+        }
+
+        function renderWriting() {
+            return '<div class="grid"><div class="tile span-12"><h2 class="section-title">Writing & Community</h2>' +
+                '<p class="writing-text">' + esc(DATA.writing.text) + '</p>' +
+                '<a href="' + esc(DATA.writing.url) + '" target="_blank" rel="noopener" style="font-size:13px; font-weight:600; color: var(--accent);">Read on Medium ↗</a>' +
+                '</div></div>';
+        }
+
+        function renderContact() {
+            var c = DATA.contact;
+            return '<div class="grid"><div class="tile tile-contact span-12">' +
+                '<span class="footer-label">Get in touch</span>' +
+                '<div class="footer-links"><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a><span class="divider">•</span><a href="tel:' + esc(c.phone.replace(/\s/g, '')) + '">' + esc(c.phone) + '</a></div>' +
+                '</div></div>';
+        }
+
+        var RENDERERS = { home: renderHome, projects: renderProjects, research: renderResearch, education: renderEducation, writing: renderWriting, contact: renderContact };
+
+        function showView(name) {
+            if (VIEWS.indexOf(name) === -1) name = 'home';
+            app.innerHTML = '<div class="view active" id="view-' + name + '">' + RENDERERS[name]() + '</div>';
+            if (name === 'projects') bindProjectSidebar();
+            topnav.querySelectorAll('button').forEach(function (b) {
+                b.classList.toggle('active', b.dataset.view === name);
+            });
+            if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        function bindNav() {
+            document.body.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-view]');
+                if (btn) showView(btn.dataset.view);
+            });
+            window.addEventListener('hashchange', function () { showView(location.hash.slice(1)); });
+        }
+
+        function boot(data) {
+            DATA = data;
+            document.getElementById('wordmark').textContent = (data.profile.name || '').toUpperCase();
+            document.title = data.profile.name + ' - ' + (data.profile.roles || [])[0];
+            bindNav();
+            showView(location.hash.slice(1) || 'home');
+        }
+
+        fetch('data/projects.json')
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(boot)
+            .catch(function (err) {
+                app.innerHTML = '<div class="data-error">Could not load site content (' + esc(err.message) + '). Try refreshing.</div>';
+            });
+    })();
     </script>
 </body>
 </html>

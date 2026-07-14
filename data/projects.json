@@ -1,0 +1,156 @@
+{
+  "profile": {
+    "name": "Brian Matoke",
+    "roles": ["AI Systems Engineer", "Data Protection Officer", "MSc AI/ML"],
+    "location": "Nairobi, Kenya",
+    "avatar": "assets/avatar.jpg",
+    "initials": "BM",
+    "tagline": "I build AI systems that work in the real world.",
+    "bio": [
+      "I design and ship systems that sit at the intersection of machine learning, data engineering, and the governance that lets both be trusted in production. That spans multi-agent and RAG architectures, models hardened against adversarial attack, ETL pipelines that hold up at tens-of-millions-of-records scale, and — as a named Data Protection Officer — the audit trails and privacy controls that let all of it legally touch real people's data.",
+      "Started by digitising 20M+ land records for Kenya's national land-mapping programme, went to Hungary to study exactly how models fail under adversarial attack, and came back to keep building — now shipping AI automation platforms and open tools for Kenyan researchers, businesses, and developers."
+    ],
+    "links": [
+      { "label": "GitHub", "url": "https://github.com/mattobryan" },
+      { "label": "LinkedIn", "url": "https://linkedin.com/in/matokebrian" },
+      { "label": "Medium", "url": "https://medium.com/@mattobryan" },
+      { "label": "Email", "url": "mailto:briaynomwamba@gmail.com" }
+    ]
+  },
+
+  "languages": {
+    "note": "Computed from the GitHub API's per-repo language byte counts, summed across non-fork repositories.",
+    "repoCount": 13,
+    "updatedAt": "2026-07-13",
+    "stats": [
+      { "name": "Python", "pct": 48.4, "color": "#3572A5" },
+      { "name": "JavaScript", "pct": 33.0, "color": "#F1E05A" },
+      { "name": "Kotlin", "pct": 7.3, "color": "#A97BFF" },
+      { "name": "TypeScript", "pct": 5.1, "color": "#3178C6" },
+      { "name": "HTML", "pct": 3.5, "color": "#E34C26" },
+      { "name": "Other", "pct": 2.7, "color": "#9CA3AF" }
+    ]
+  },
+
+  "focusAreas": ["Adversarial ML", "LLM / RAG", "Data Governance", "ETL at Scale", "Team Leadership"],
+
+  "projects": [
+    {
+      "id": "medlit-search",
+      "name": "MedLit Search",
+      "repo": "mattobryan/Medlit",
+      "visibility": "public",
+      "demoUrl": "https://mattobryan.github.io/Medlit/",
+      "repoUrl": "https://github.com/mattobryan/Medlit",
+      "summary": "Clinical literature search across 6 free databases simultaneously, with one-click routed access to 8 paywalled databases and AI-powered evidence synthesis.",
+      "problem": "researchers and clinicians juggle six or more separate database search interfaces and manually re-run the same query on each one, then manually work out which results they can actually reach through their institution's paywall access.",
+      "approach": "a single-file React app that queries PubMed, Europe PMC, Semantic Scholar, OpenAlex, CrossRef, and DOAJ in parallel, auto-detects study type, offers a structured PICO search mode, checks Unpaywall for legal open-access copies, and — with the visitor's own Anthropic API key — asks Claude to synthesise up to 20 papers into an evidence-quality summary.",
+      "outcome": "a zero-install, zero-cost tool that ships as one static HTML file on GitHub Pages.",
+      "stack": "React 18 (CDN), Babel Standalone, PubMed / Europe PMC / Semantic Scholar / OpenAlex / CrossRef / DOAJ / Unpaywall APIs, Claude"
+    },
+    {
+      "id": "dailystack",
+      "name": "DailyStack",
+      "repo": "mattobryan/dailystack",
+      "visibility": "public",
+      "demoUrl": "https://mattobryan.github.io/dailystack/",
+      "repoUrl": "https://github.com/mattobryan/dailystack",
+      "summary": "Offline-first habit and life tracker with SMART goals, analytics, and time-gated reminders.",
+      "problem": "most habit trackers need a constant connection and stop being useful the moment daily life gets in the way.",
+      "approach": "an offline-first tracker with SMART goals and analytics that work whether or not you're online.",
+      "outcome": "built for actually sticking with a habit, not just logging one entry.",
+      "stack": "JavaScript"
+    },
+    {
+      "id": "zuio",
+      "name": "ZUIO",
+      "repo": "mattobryan/zuio",
+      "visibility": "public",
+      "demoUrl": "https://mattobryan.github.io/zuio/",
+      "repoUrl": "https://github.com/mattobryan/zuio",
+      "summary": "A Kenyan word-guessing party game — describe the word without using any of the banned words.",
+      "problem": "wanted a lightweight, distinctly Kenyan party game friends could play in a browser.",
+      "approach": "describe the word, avoid the banned list, score points before time runs out.",
+      "outcome": "a fun, shareable local twist on a classic format.",
+      "stack": "JavaScript"
+    },
+    {
+      "id": "pesa-ai-logger",
+      "name": "Pesa AI Logger",
+      "repo": "mattobryan/Pesa-AI-Logger",
+      "visibility": "private",
+      "summary": "Local-first M-Pesa financial intelligence. Parses transaction SMS, categorises spending automatically.",
+      "problem": "Kenyans run their financial lives through M-Pesa but can't easily see spending patterns across scattered SMS.",
+      "approach": "a local Python/Flask parser with Polygon-blockchain tamper-evident logging, nothing sent to a third-party server.",
+      "outcome": "SMS history becomes a usable finance dashboard.",
+      "stack": "Python, Flask, SQLite, Polygon"
+    },
+    {
+      "id": "compliance-engine-mvp",
+      "name": "ComplianceEngineMVP",
+      "repo": "mattobryan/ComplianceEngineMVP",
+      "visibility": "private",
+      "summary": "Multi-tenant KDPA 2019 compliance automation with tamper-evident audit logging.",
+      "problem": "small Kenyan businesses can't afford consultants for KDPA 2019 compliance, so most skip it.",
+      "approach": "a FastAPI/Docker platform that scopes compliance via questionnaire and auto-generates documentation.",
+      "outcome": "compliance becomes achievable for businesses that would otherwise ignore it.",
+      "stack": "FastAPI, Docker, JavaScript"
+    },
+    {
+      "id": "mail2print",
+      "name": "Mail2Print",
+      "repo": "mattobryan/mail2print",
+      "visibility": "private",
+      "summary": "Unattended print automation daemon for Raspberry Pi and Linux.",
+      "problem": "unattended print stations need emailed PDFs printed without a human watching.",
+      "approach": "a daemon watching an inbox via IMAP IDLE, with duplicate detection and error recovery.",
+      "outcome": "email a PDF, and it's already printed.",
+      "stack": "Python, IMAP IDLE, systemd"
+    },
+    {
+      "id": "sheria-ai",
+      "name": "Sheria AI",
+      "repo": null,
+      "visibility": "private",
+      "summary": "RAG legal research system for Kenya — semantic search over case law and statutes.",
+      "problem": "Kenyan legal research is scattered with no semantic search.",
+      "approach": "FastAPI + pgvector + BGE-M3 embeddings + React, built alongside a research paper targeting JIPIT Strathmore.",
+      "outcome": "proof that RAG legal tools can be built for Kenyan law specifically.",
+      "stack": "FastAPI, pgvector, BGE-M3, React"
+    }
+  ],
+
+  "research": [
+    {
+      "name": "Adversarial Robustness Research",
+      "desc": "Designed an Adaptive Adversarial Training framework at University of Szeged. +6.9pp clean accuracy (81.3%→88.2%) and +3.5pp union robustness over the published RAMP baseline across three simultaneous threat models (L-inf, L2, L1).",
+      "meta": "MSc Dissertation, 2025 · PyTorch, CIFAR-10"
+    },
+    {
+      "name": "Data Systems at Scale",
+      "desc": "Built and maintained ETL pipelines processing 20M+ digitised citizen land records for Kenya's Joint National and Resource Mapping (JNAM) programme. Ingestion-stage validation cut data error rates by 50%+.",
+      "meta": "Konza Silicon, 2020–2022 · Led a 12-person team"
+    },
+    {
+      "name": "AI Automation & Data Governance",
+      "desc": "Designed and deployed a production AI automation platform at Tamu Group processing 100 documents/day with full data lineage and GDPR-aligned audit controls. Served as Data Protection Officer under Kenya DPA 2019.",
+      "meta": "Tamu Group, 2025 · EU Foundation Certificate in Data Protection"
+    }
+  ],
+
+  "education": [
+    { "name": "MSc Computer Science (AI/ML)", "meta": "University of Szeged, Hungary · 2023–2025" },
+    { "name": "EU Foundation Certificate in Data Protection", "meta": "University of Szeged, Hungary · 2024" },
+    { "name": "BSc Computer Science", "meta": "Multimedia University of Kenya · 2019" }
+  ],
+
+  "writing": {
+    "text": "Regular contributor to discussions on AI governance in Kenya and East Africa. Published analysis of Kenya's Artificial Intelligence Bill 2026. Active member of Effective Altruism Nairobi and volunteer at EAGx Berlin 2024.",
+    "url": "https://medium.com/@mattobryan"
+  },
+
+  "contact": {
+    "email": "briaynomwamba@gmail.com",
+    "phone": "+254 718 829 629"
+  }
+}
