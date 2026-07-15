@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adaptive Adversarial Training — Interactive Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
   --ink:#16233B; --paper:#EEF2F6; --card:#FFFFFF; --grid:#D7DFE8; --mute:#5B6B80;
   --cinf:#D33F49; --cl2:#2A9D8F; --cl1:#E9A03B; --caat:#3454D1; --cbase:#9AA7B6;
@@ -55,6 +57,15 @@ section{margin-top:56px}
 footer{margin-top:60px;border-top:1px solid var(--grid);padding-top:18px}
 svg{display:block;width:100%;height:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* compact mode when embedded in the portfolio (?embed=1) */
+.embed .wrap{padding:18px 16px 36px}
+.embed section{margin-top:26px}
+.embed .hero{gap:18px}
+.embed .hero>div:last-child{display:none}
+.embed h1{font-size:clamp(22px,3vw,32px)}
+.embed p.lede{font-size:15px;max-width:82ch}
+.embed p.body{max-width:82ch}
+.embed footer{margin-top:28px}
 </style>
 </head>
 <body>
@@ -254,6 +265,7 @@ svg{display:block;width:100%;height:auto}
 
 <script>
 (function(){
+  if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add('embed');
   var T_MAX = 80;
   var CLASSES = [
     {name:"plane",v:0.40},{name:"car",v:0.30},{name:"bird",v:0.72},{name:"cat",v:0.82},

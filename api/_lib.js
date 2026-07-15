@@ -174,15 +174,17 @@ ${readme || '(no README found)'}`;
   return JSON.parse(match[0]);
 }
 
-async function sendEmail({ subject, html }) {
+async function sendEmail({ to, subject, html, replyTo }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.OWNER_EMAIL;
+  const dest = to || process.env.OWNER_EMAIL;
   const from = process.env.EMAIL_FROM || 'Portfolio Bot <onboarding@resend.dev>';
-  if (!apiKey || !to) throw new Error('RESEND_API_KEY / OWNER_EMAIL not set');
+  if (!apiKey || !dest) throw new Error('RESEND_API_KEY / OWNER_EMAIL not set');
+  const body = { from, to: dest, subject, html };
+  if (replyTo) body.reply_to = replyTo;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`Resend API -> ${res.status} ${await res.text()}`);
   return res.json();

@@ -15,7 +15,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <style>
         :root {
@@ -478,6 +478,64 @@
         /* Magnetic buttons */
         .magnetic { display: inline-block; transition: transform 220ms cubic-bezier(.2,.6,.2,1); will-change: transform; }
 
+        /* Forms */
+        .cform .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .fgroup { margin-bottom: 14px; }
+        .fgroup label {
+            display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+            text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px;
+        }
+        .fgroup input, .fgroup textarea {
+            width: 100%; background: var(--bg); border: 1px solid var(--border-strong);
+            border-radius: 11px; padding: 11px 13px; font: inherit; font-size: 14px;
+            color: var(--ink); transition: border-color 150ms ease, box-shadow 150ms ease;
+        }
+        .fgroup textarea { resize: vertical; min-height: 110px; }
+        .fgroup input:focus, .fgroup textarea:focus {
+            border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; }
+        .submit-btn {
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: #fff; font-weight: 600; font-size: 13px; padding: 11px 20px;
+            border-radius: 999px; box-shadow: 0 6px 20px -6px var(--accent);
+            transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px -6px var(--accent); }
+        .submit-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+        .form-status { font-size: 12.5px; margin-top: 10px; color: var(--ink-faint); min-height: 1.2em; }
+        .form-status.ok { color: var(--live); }
+        .form-status.err { color: #D33F49; }
+
+        .contact-direct { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.4rem; }
+        .contact-direct a {
+            display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500;
+            padding: 10px 13px; border: 1px solid var(--border); border-radius: 11px;
+            transition: border-color 150ms ease, color 150ms ease, transform 150ms ease;
+        }
+        .contact-direct a:hover { border-color: var(--accent); color: var(--accent); transform: translateX(2px); }
+        .contact-direct .ico { font-size: 15px; }
+
+        /* Medium article list */
+        .article-list { display: flex; flex-direction: column; }
+        .article-item {
+            display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+            padding: 13px 6px; border-bottom: 1px solid var(--border);
+            transition: background 140ms ease, transform 140ms ease;
+        }
+        .article-item:last-child { border-bottom: none; }
+        .article-item:hover { background: var(--accent-soft); border-radius: 9px; transform: translateX(3px); }
+        .article-item .a-title { font-size: 14px; font-weight: 500; line-height: 1.45; }
+        .article-item:hover .a-title { color: var(--accent); }
+        .article-item .a-date {
+            font-size: 11.5px; color: var(--ink-faint); flex: 0 0 auto;
+            font-variant-numeric: tabular-nums;
+        }
+        .article-skel { font-size: 12.5px; color: var(--ink-faint); padding: 12px 6px; }
+
+        .collab-link { font-size: 13px; font-weight: 500; color: var(--accent); }
+        .collab-link:hover { text-decoration: underline; }
+
         /* Tablet */
         @media (max-width: 900px) {
             .span-4, .span-6, .span-8 { grid-column: span 6; }
@@ -490,6 +548,7 @@
         @media (max-width: 620px) {
             main { padding: 1rem 1rem 2.5rem; }
             .grid { gap: 12px; }
+            .cform .frow { grid-template-columns: 1fr; }
             .topbar { padding: 0.8rem 1rem; gap: 0.75rem; }
             .topnav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
             .topnav::-webkit-scrollbar { display: none; }
@@ -690,6 +749,7 @@
                         '<div class="jump-links">' +
                             '<button class="primary magnetic" data-view="projects">See my projects →</button>' +
                             '<button class="ghost magnetic" data-view="research">Research & thesis →</button>' +
+                            '<button class="ghost magnetic" data-view="contact">Request my CV →</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -735,6 +795,7 @@
             if (proj.demoUrl) actions += '<a href="' + esc(proj.demoUrl) + '" target="_blank" rel="noopener">Open in new tab ↗</a>';
             if (proj.repoUrl) actions += '<a href="' + esc(proj.repoUrl) + '" target="_blank" rel="noopener">View on GitHub</a>';
             if (!proj.demoUrl && !proj.repoUrl) actions = '<span class="private-note">Not yet public.</span>';
+            actions += '<button class="collab-link" data-collab="' + esc(proj.name) + '">🤝 Collaborate on this</button>';
 
             return (
                 '<div class="card-head"><h3>' + esc(proj.name) + '</h3>' + badge + '</div>' +
@@ -809,7 +870,7 @@
                             '<span class="chrome-url"><a href="' + esc(DATA.thesis.url) + '" target="_blank" rel="noopener">' + esc(DATA.thesis.url) + '</a></span>' +
                         '</div>' +
                         '<div class="demo-loading"><div class="spinner"></div></div>' +
-                        '<iframe src="' + esc(DATA.thesis.url) + '" loading="lazy" title="' + esc(DATA.thesis.title) + '" style="height:640px" sandbox="allow-scripts allow-same-origin"></iframe>' +
+                        '<iframe src="' + esc(DATA.thesis.url) + '?embed=1" loading="lazy" title="' + esc(DATA.thesis.title) + '" style="height:540px" sandbox="allow-scripts allow-same-origin"></iframe>' +
                     '</div>' +
                     '<div class="card-actions"><a href="' + esc(DATA.thesis.url) + '" target="_blank" rel="noopener">Open full page ↗</a></div>' +
                 '</div>';
@@ -828,19 +889,142 @@
                 }).join('') + '</div></div></div>';
         }
 
+        var mediumCache = null;
+
         function renderWriting() {
-            return '<div class="grid"><div class="tile span-12" style="--i:0"><h2 class="section-title">Writing & Community</h2>' +
-                '<p class="writing-text">' + esc(DATA.writing.text) + '</p>' +
-                '<a href="' + esc(DATA.writing.url) + '" target="_blank" rel="noopener" class="accent-link">Read on Medium ↗</a>' +
-                '</div></div>';
+            return '<div class="grid">' +
+                '<div class="tile span-4" style="--i:0"><h2 class="section-title">Writing & Community</h2>' +
+                    '<p class="writing-text">' + esc(DATA.writing.text) + '</p>' +
+                    '<a href="' + esc(DATA.writing.url) + '" target="_blank" rel="noopener" class="accent-link">Browse all on Medium ↗</a>' +
+                '</div>' +
+                '<div class="tile span-8" style="--i:1"><h2 class="section-title">Latest articles</h2>' +
+                    '<div class="article-list" id="medium-list"><div class="article-skel">Loading latest articles…</div></div>' +
+                '</div>' +
+            '</div>';
         }
+
+        function loadMedium() {
+            var list = document.getElementById('medium-list');
+            if (!list) return;
+            function render(articles) {
+                if (!articles.length) {
+                    list.innerHTML = '<div class="article-skel">Couldn’t load articles right now — <a class="accent-link" href="' + esc(DATA.writing.url) + '" target="_blank" rel="noopener">browse on Medium ↗</a></div>';
+                    return;
+                }
+                list.innerHTML = articles.map(function (a) {
+                    return '<a class="article-item" href="' + esc(a.url) + '" target="_blank" rel="noopener">' +
+                        '<span class="a-title">' + esc(a.title) + '</span>' +
+                        (a.date ? '<span class="a-date">' + esc(a.date) + '</span>' : '') +
+                    '</a>';
+                }).join('');
+            }
+            if (mediumCache) { render(mediumCache); return; }
+            fetch('api/medium')
+                .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(function (data) { mediumCache = data.articles || []; render(mediumCache); })
+                .catch(function () { render([]); });
+        }
+
+        var contactPrefill = null;
 
         function renderContact() {
             var c = DATA.contact;
-            return '<div class="grid"><div class="tile tile-contact span-12" style="--i:0">' +
-                '<span class="footer-label">Get in touch</span>' +
-                '<div class="footer-links"><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a><span class="divider">•</span><a href="tel:' + esc(c.phone.replace(/\s/g, '')) + '">' + esc(c.phone) + '</a></div>' +
-                '</div></div>';
+            var p = DATA.profile;
+            var pre = contactPrefill || {};
+            contactPrefill = null;
+            var social = (p.links || []).filter(function (l) { return /^https?:/.test(l.url); });
+            return '<div class="grid">' +
+                '<div class="tile span-8" style="--i:0">' +
+                    '<h2 class="section-title">Send a message</h2>' +
+                    '<form class="cform" id="contact-form" novalidate>' +
+                        '<div class="frow">' +
+                            '<div class="fgroup"><label for="cf-name">Name</label><input id="cf-name" name="name" required maxlength="80" autocomplete="name"></div>' +
+                            '<div class="fgroup"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" required maxlength="120" autocomplete="email"></div>' +
+                        '</div>' +
+                        '<div class="fgroup"><label for="cf-subject">Subject</label><input id="cf-subject" name="subject" maxlength="140" value="' + esc(pre.subject || '') + '"></div>' +
+                        '<div class="fgroup"><label for="cf-message">Message</label><textarea id="cf-message" name="message" required maxlength="4000">' + esc(pre.message || '') + '</textarea></div>' +
+                        '<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+                        '<button class="submit-btn magnetic" type="submit">Send message →</button>' +
+                        '<p class="form-status" id="contact-status" role="status"></p>' +
+                    '</form>' +
+                '</div>' +
+                '<div class="tile span-4" style="--i:1">' +
+                    '<h2 class="section-title">Direct</h2>' +
+                    '<div class="contact-direct">' +
+                        '<a href="mailto:' + esc(c.email) + '"><span class="ico">✉️</span>' + esc(c.email) + '</a>' +
+                        '<a href="tel:' + esc(c.phone.replace(/\s/g, '')) + '"><span class="ico">📞</span>' + esc(c.phone) + '</a>' +
+                        social.map(function (l) {
+                            return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener"><span class="ico">🔗</span>' + esc(l.label) + '</a>';
+                        }).join('') +
+                    '</div>' +
+                    '<h2 class="section-title">Request my CV</h2>' +
+                    '<p class="lang-note" style="margin-bottom:0.8rem">Approved requests receive the CV by email — usually within a day.</p>' +
+                    '<form class="cform" id="cv-form" novalidate>' +
+                        '<div class="fgroup"><label for="cv-name">Name</label><input id="cv-name" name="name" required maxlength="80"></div>' +
+                        '<div class="fgroup"><label for="cv-email">Email</label><input id="cv-email" name="email" type="email" required maxlength="120"></div>' +
+                        '<div class="fgroup"><label for="cv-reason">What’s it for? (optional)</label><input id="cv-reason" name="reason" maxlength="600" placeholder="Role, company, project…"></div>' +
+                        '<input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+                        '<button class="submit-btn" type="submit">Request CV →</button>' +
+                        '<p class="form-status" id="cv-status" role="status"></p>' +
+                    '</form>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function bindForm(formId, statusId, endpoint, fields, okMsg, fallback) {
+            var form = document.getElementById(formId);
+            if (!form) return;
+            var status = document.getElementById(statusId);
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var body = {};
+                var valid = true;
+                fields.forEach(function (f) {
+                    var el = form.elements[f.name];
+                    body[f.name] = el ? el.value.trim() : '';
+                    if (f.required && !body[f.name]) valid = false;
+                    if (f.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body[f.name])) valid = false;
+                });
+                body.website = form.elements.website ? form.elements.website.value : '';
+                if (!valid) {
+                    status.className = 'form-status err';
+                    status.textContent = 'Please fill in the required fields with a valid email.';
+                    return;
+                }
+                var btn = form.querySelector('.submit-btn');
+                btn.disabled = true;
+                status.className = 'form-status';
+                status.textContent = 'Sending…';
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                })
+                .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+                .then(function (res) {
+                    if (!res.ok) throw new Error(res.j.error || 'Failed');
+                    status.className = 'form-status ok';
+                    status.textContent = okMsg;
+                    form.reset();
+                })
+                .catch(function () {
+                    status.className = 'form-status err';
+                    status.textContent = fallback;
+                })
+                .then(function () { btn.disabled = false; });
+            });
+        }
+
+        function bindContact() {
+            var email = DATA.contact.email;
+            bindForm('contact-form', 'contact-status', 'api/contact',
+                [{ name: 'name', required: true }, { name: 'email', required: true, email: true }, { name: 'subject' }, { name: 'message', required: true }],
+                'Sent — I’ll get back to you soon.',
+                'Couldn’t send right now — email me directly at ' + email + '.');
+            bindForm('cv-form', 'cv-status', 'api/cv',
+                [{ name: 'name', required: true }, { name: 'email', required: true, email: true }, { name: 'reason' }],
+                'Request received — you’ll get the CV by email once approved.',
+                'Couldn’t send right now — email me directly at ' + email + '.');
         }
 
         var RENDERERS = { home: renderHome, projects: renderProjects, research: renderResearch, education: renderEducation, writing: renderWriting, contact: renderContact };
@@ -889,6 +1073,8 @@
             app.innerHTML = '<div class="view active" id="view-' + name + '">' + RENDERERS[name]() + '</div>';
             if (name === 'projects' || name === 'research') { bindProjectSidebar(); bindDemoLoaders(); }
             if (name === 'home') activateDonut(document.getElementById('donut-wrap'));
+            if (name === 'writing') loadMedium();
+            if (name === 'contact') bindContact();
             bindTilt();
             bindMagnetic();
             topnav.querySelectorAll('button').forEach(function (b) {
@@ -901,6 +1087,15 @@
 
         function bindNav() {
             document.body.addEventListener('click', function (e) {
+                var collab = e.target.closest('[data-collab]');
+                if (collab) {
+                    contactPrefill = {
+                        subject: 'Collaboration: ' + collab.dataset.collab,
+                        message: 'Hi Brian,\n\nI’d like to collaborate on ' + collab.dataset.collab + ' — ',
+                    };
+                    showView('contact');
+                    return;
+                }
                 var btn = e.target.closest('[data-view]');
                 if (btn) showView(btn.dataset.view);
             });

@@ -15,8 +15,12 @@ email approval → auto-publish) needs four secrets that only you can create, ad
 Also set:
 - `OWNER_EMAIL` = `briaynomwamba@gmail.com`
 - `SITE_URL` = `https://port-three-taupe.vercel.app`
+- `CV_URL` — a shareable link to your CV (Google Drive share link, Dropbox, etc.).
+  Never committed to the repo, so the CV itself stays private; approved requesters
+  get this link by email.
 - `CRON_SECRET` — optional but recommended: any random string, also add it as a Vercel
   Cron secret so `/api/scan` rejects requests that don't come from Vercel's own scheduler.
+- `MEDIUM_FEED` — optional; defaults to `https://medium.com/feed/@MatokeBryan`.
 
 ## What runs once those are set
 
@@ -28,6 +32,14 @@ Also set:
 - **Clicking Publish** (`/api/approve`): commits the drafted card into
   `data/projects.json`, which Vercel auto-redeploys — no code changes needed.
 - **Clicking Skip**: marks the repo as dismissed so you won't be asked again unless it changes.
+- **Medium articles** (`/api/medium`): the Writing view lists your latest posts by
+  proxying your Medium RSS feed, edge-cached for an hour. No key needed — new posts
+  appear automatically.
+- **Contact form** (`/api/contact`): messages land in your inbox with reply-to set to
+  the sender, honeypot-filtered against bots. Needs `RESEND_API_KEY` + `OWNER_EMAIL`.
+- **Gated CV** (`/api/cv`): a visitor requests your CV with name/email/reason; you get
+  an email with an Approve button; clicking it emails them the `CV_URL` link. No
+  approval, no CV. Signed tokens, 14-day expiry, no database.
 
 ## Known gaps / next decisions
 
