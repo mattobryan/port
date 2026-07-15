@@ -13,7 +13,7 @@
     "links": [
       { "label": "GitHub", "url": "https://github.com/mattobryan" },
       { "label": "LinkedIn", "url": "https://linkedin.com/in/matokebrian" },
-      { "label": "Medium", "url": "https://medium.com/@mattobryan" },
+      { "label": "Medium", "url": "https://medium.com/@MatokeBryan" },
       { "label": "Email", "url": "mailto:briaynomwamba@gmail.com" }
     ]
   },
@@ -120,6 +120,12 @@
     }
   ],
 
+  "thesis": {
+    "title": "Adaptive Adversarial Training — Interactive Demo",
+    "summary": "MSc thesis, University of Szeged. A live simulation of the AAT feedback loop: per-class ε budgets that adapt to class robustness, Boltzmann norm scheduling over ℓ∞/ℓ2/ℓ1, and union robustness climbing from 40% to 49% over a static RAMP-style baseline. Press Train and play with the dials.",
+    "url": "thesis.html"
+  },
+
   "research": [
     {
       "name": "Adversarial Robustness Research",
@@ -146,7 +152,7 @@
 
   "writing": {
     "text": "Regular contributor to discussions on AI governance in Kenya and East Africa. Published analysis of Kenya's Artificial Intelligence Bill 2026. Active member of Effective Altruism Nairobi and volunteer at EAGx Berlin 2024.",
-    "url": "https://medium.com/@mattobryan"
+    "url": "https://medium.com/@MatokeBryan"
   },
 
   "contact": {

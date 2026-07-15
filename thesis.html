@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Adversarial Training — Interactive Demo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --ink:#16233B; --paper:#EEF2F6; --card:#FFFFFF; --grid:#D7DFE8; --mute:#5B6B80;
+  --cinf:#D33F49; --cl2:#2A9D8F; --cl1:#E9A03B; --caat:#3454D1; --cbase:#9AA7B6;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans',sans-serif;
+  background-image:linear-gradient(rgba(215,223,232,.35) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(215,223,232,.35) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 22px 80px}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:'Sora',sans-serif;font-weight:700;font-size:clamp(30px,4.6vw,50px);line-height:1.06;margin:10px 0 14px}
+h1 .em{color:var(--caat)}
+h2{font-family:'Sora',sans-serif;font-weight:600;font-size:22px;margin:0 0 8px}
+p.lede{font-size:17px;line-height:1.65;max-width:64ch;color:#2A3A52}
+p.body{font-size:15px;line-height:1.65;max-width:66ch;color:#2A3A52}
+.card{background:var(--card);border:1px solid var(--grid);border-radius:10px;padding:20px;box-shadow:0 1px 2px rgba(22,35,59,.05)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.hero{display:flex;gap:32px;align-items:center}
+@media (max-width:820px){.grid2,.grid3{grid-template-columns:1fr}.hero{flex-direction:column}}
+.chart-title{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);margin-bottom:6px}
+.stat{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:500}
+.stat-label{font-size:12px;color:var(--mute);margin-top:2px}
+button.ctrl{font-family:'Sora',sans-serif;font-weight:600;font-size:14px;padding:9px 20px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button.ctrl:focus-visible,input:focus-visible{outline:2px solid var(--caat);outline-offset:2px}
+.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:14px 0 20px}
+.slider label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);display:block;margin-bottom:2px}
+input[type=range]{accent-color:var(--caat);width:150px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--grid);font-family:'IBM Plex Mono',monospace}
+th:first-child,td:first-child{text-align:left;font-family:'IBM Plex Sans',sans-serif}
+thead th{font-size:12px;color:var(--mute);font-weight:500}
+.win{color:var(--caat);font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--mute);margin-top:8px}
+.sw{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.loopstep{display:flex;gap:12px;align-items:flex-start}
+.loopnum{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--caat);border:1px solid var(--caat);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.looptitle{font-family:'Sora',sans-serif;font-weight:600;margin-bottom:4px}
+.loopdesc{font-size:13.5px;line-height:1.55;color:#2A3A52}
+section{margin-top:56px}
+.note{font-size:12.5px;color:var(--mute);max-width:66ch;line-height:1.5}
+footer{margin-top:60px;border-top:1px solid var(--grid);padding-top:18px}
+svg{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div style="flex:1">
+      <div class="eyebrow">MSc Thesis · University of Szeged · Adversarial ML</div>
+      <h1>Training that <span class="em">listens</span> to the model it is attacking.</h1>
+      <p class="lede">
+        Adaptive Adversarial Training (AAT) is a curriculum for robust deep learning.
+        Instead of attacking every class with the same fixed perturbation budget, AAT
+        watches which classes and which threat norms the model is weakest against, then
+        redirects attack strength and attack type toward those weaknesses, epoch by epoch.
+        The result on CIFAR-10: union robustness rises from 40% to 49% against combined
+        ℓ∞, ℓ2 and ℓ1 attacks, with clean accuracy improving rather than degrading.
+      </p>
+    </div>
+    <div style="width:250px;max-width:60vw">
+      <svg viewBox="0 0 260 260" aria-label="Union of l1, l2 and l-infinity norm balls">
+        <g transform="translate(130,130)">
+          <rect x="-88" y="-88" width="176" height="176" fill="#D33F49" opacity="0.10" stroke="#D33F49" stroke-width="2"/>
+          <circle r="88" fill="#2A9D8F" opacity="0.10" stroke="#2A9D8F" stroke-width="2"/>
+          <path d="M0,-88 L88,0 L0,88 L-88,0 Z" fill="#E9A03B" opacity="0.12" stroke="#E9A03B" stroke-width="2"/>
+          <circle r="2.6" fill="#16233B"/>
+          <text x="0" y="-104" text-anchor="middle" font-size="13" fill="#D33F49" font-family="'IBM Plex Mono',monospace">ℓ∞</text>
+          <text x="80" y="76" text-anchor="middle" font-size="13" fill="#2A9D8F" font-family="'IBM Plex Mono',monospace">ℓ2</text>
+          <text x="-56" y="58" text-anchor="middle" font-size="13" fill="#E9A03B" font-family="'IBM Plex Mono',monospace">ℓ1</text>
+          <text x="10" y="16" font-size="11" fill="#16233B" font-family="'IBM Plex Mono',monospace">x</text>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <section>
+    <h2>The problem: one norm is never enough</h2>
+    <p class="body">
+      A model hardened against ℓ∞ attacks (bounded per-pixel change) can still collapse
+      under ℓ2 or ℓ1 perturbations, because each norm carves a differently shaped region
+      around every input. Union robustness, accuracy under the worst of all three, is the
+      metric that matters in deployment, and it is consistently the lowest. A second,
+      quieter problem: classes are not equally fragile. Cats and birds break under
+      perturbations that planes and trucks shrug off, yet standard adversarial training
+      hands every class the same attack budget, overdefending the strong and abandoning
+      the weak.
+    </p>
+  </section>
+
+  <section>
+    <h2>The training loop, live</h2>
+    <p class="body">
+      This is a stylized simulation of AAT's closed feedback loop, calibrated so the final
+      values match the thesis experiments (80 epochs, PreActResNet-18, CIFAR-10, evaluated
+      with AutoAttack). Press train and watch the two adaptive mechanisms work.
+    </p>
+
+    <div class="controls">
+      <button class="ctrl" id="playBtn">Train</button>
+      <button class="ctrl ghost" id="resetBtn">Reset</button>
+      <div class="slider">
+        <label id="epochLabel">epoch · 0/80</label>
+        <input type="range" id="epochSlider" min="0" max="80" value="0">
+      </div>
+      <div class="slider">
+        <label id="gammaLabel">γ norm sharpness · 3.0</label>
+        <input type="range" id="gammaSlider" min="0" max="8" step="0.5" value="3">
+      </div>
+      <div class="slider">
+        <label id="tauLabel">τ target robust acc · 50%</label>
+        <input type="range" id="tauSlider" min="0.3" max="0.7" step="0.05" value="0.5">
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="chart-title">1 · Per-class ε budgets adapt to class robustness (ε, /255)</div>
+        <div id="chartEps"></div>
+        <div class="legend">
+          <span><span class="sw" style="background:hsl(200,55%,48%)"></span>robust classes (ship, car)</span>
+          <span><span class="sw" style="background:hsl(65,70%,45%)"></span>fragile classes (cat, dog, bird)</span>
+          <span><span class="sw" style="background:#16233B"></span>static linear schedule (RAMP)</span>
+        </div>
+        <p class="note" style="margin-top:10px">
+          Update rule ε(c) ← ε(c) + α·(A(c) − τ). Classes that clear the target τ earn a
+          harder attack; classes still struggling are held back so their decision margins
+          can form. Lower τ and the whole curriculum turns aggressive.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="chart-title">2 · Norm sampling weights, Boltzmann over weakness ω(p) ∝ exp(−γR(p))</div>
+        <div id="chartNorm"></div>
+        <div class="legend">
+          <span><span class="sw" style="background:#D33F49"></span>ℓ∞ (<span id="wInf">33</span>%)</span>
+          <span><span class="sw" style="background:#2A9D8F"></span>ℓ2 (<span id="wL2">33</span>%)</span>
+          <span><span class="sw" style="background:#E9A03B"></span>ℓ1 (<span id="wL1">33</span>%)</span>
+        </div>
+        <p class="note" style="margin-top:10px">
+          ℓ2 robustness comes cheap, so its share of training shrinks. ℓ∞, the hardest
+          threat, keeps drawing the most attack samples. Raise γ to make the scheduler
+          greedier about the weakest norm.
+        </p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1 1 340px">
+          <div class="chart-title">3 · Union robustness: accuracy under the worst of ℓ∞ ∪ ℓ2 ∪ ℓ1</div>
+          <div id="chartUnion"></div>
+          <div class="legend">
+            <span><span class="sw" style="background:#3454D1"></span>AAT (adaptive ε + adaptive norms)</span>
+            <span><span class="sw" style="background:#9AA7B6"></span>static baseline (RAMP-style)</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:26px;flex-wrap:wrap">
+          <div><div class="stat" style="color:#3454D1" id="statAAT">5.0%</div><div class="stat-label">AAT union robustness</div></div>
+          <div><div class="stat" style="color:#5B6B80" id="statBase">5.0%</div><div class="stat-label">static baseline</div></div>
+          <div><div class="stat" id="statGain">+0.0</div><div class="stat-label">points gained</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>One loop, two dials</h2>
+    <div class="grid3" style="margin-top:16px">
+      <div class="card loopstep"><div class="loopnum">1</div><div>
+        <div class="looptitle">Evaluate</div>
+        <div class="loopdesc">After each epoch, measure robust accuracy per class A(c) and per norm R(p) on held-out data. This is the feedback signal everything else consumes.</div>
+      </div></div>
+      <div class="card loopstep"><div class="loopnum">2</div><div>
+        <div class="looptitle">Adapt</div>
+        <div class="loopdesc">Raise ε for classes above the target τ, hold it for classes below. Reweight norm sampling toward whichever of ℓ∞, ℓ2, ℓ1 the model currently resists least.</div>
+      </div></div>
+      <div class="card loopstep"><div class="loopnum">3</div><div>
+        <div class="looptitle">Attack and train</div>
+        <div class="loopdesc">Generate PGD adversarial examples under the sampled norms and adapted budgets, take the worst-case loss with a KL consistency term across norms, and update the weights.</div>
+      </div></div>
+    </div>
+    <p class="body" style="margin-top:16px">
+      The baseline this improves on, RAMP, pairs logits across two fixed norms with a
+      fixed attack schedule. AAT keeps RAMP's pairing loss but replaces every static
+      choice with a feedback-driven one, which turns the schedule itself into a
+      curriculum: easy first, hard when earned, always pointed at the current weakness.
+    </p>
+  </section>
+
+  <section>
+    <h2>Measured results (thesis, CIFAR-10 test set, epoch 80)</h2>
+    <div class="card" style="margin-top:14px;overflow-x:auto">
+      <table>
+        <thead><tr><th>Configuration</th><th>Clean</th><th>ℓ∞</th><th>ℓ2</th><th>ℓ1</th><th>Union</th></tr></thead>
+        <tbody>
+          <tr><td>Static ε schedule (1A, RAMP-style)</td><td>87.0%</td><td>40.0%</td><td>75.5%</td><td>46.0%</td><td>40.0%</td></tr>
+          <tr><td>Adaptive ε, train + eval (1B, AAT)</td><td class="win">89.0%</td><td class="win">50.0%</td><td class="win">78.0%</td><td class="win">56.0%</td><td class="win">49.0%</td></tr>
+          <tr><td>RAMP baseline (norm-scheduling study)</td><td>81.3%</td><td>45.96%</td><td>65.74%</td><td>48.42%</td><td>44.50%</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:12px">
+        Adaptive ε scheduling delivers the largest single gain: +10 points on ℓ∞, +10 on
+        ℓ1, +9 on union robustness, with clean accuracy up 2 points rather than traded
+        away. Norm scheduling alone yields smaller, consistent gains; combined multi-norm
+        variants (Ablation 3) extend the same feedback principle to attack selection.
+        Evaluation via AutoAttack. Trained on a single 12 GB GPU with gradient
+        accumulation, a deliberately low-resource setup.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why this matters</h2>
+    <p class="body">
+      Robustness research usually assumes clusters of A100s. This work shows that
+      principled curriculum design, not raw compute, closes a meaningful share of the
+      union-robustness gap on commodity hardware. That is the deployment reality for most
+      of the world: models serving safety-relevant decisions in environments where
+      retraining is expensive, attacks are unconstrained by any single norm, and the
+      hardest classes are exactly the ones a uniform defense quietly abandons. AAT's
+      contribution is a training procedure that allocates defensive effort the way an
+      attacker allocates offensive effort: toward whatever is currently weakest.
+    </p>
+  </section>
+
+  <footer>
+    <div class="eyebrow">
+      Adaptive Adversarial Training: A Curriculum-Based Approach to Robustness · Brian
+      Omwamba Matoke · Department of Computer Science, University of Szeged
+    </div>
+    <p class="note" style="margin-top:8px">
+      The training curves above are an interactive simulation of the AAT feedback
+      dynamics, calibrated to the thesis's measured endpoints; they are illustrative, not
+      logged experiment data.
+    </p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var T_MAX = 80;
+  var CLASSES = [
+    {name:"plane",v:0.40},{name:"car",v:0.30},{name:"bird",v:0.72},{name:"cat",v:0.82},
+    {name:"deer",v:0.60},{name:"dog",v:0.76},{name:"frog",v:0.50},{name:"horse",v:0.46},
+    {name:"ship",v:0.36},{name:"truck",v:0.42}
+  ];
+  var INK="#16233B", GRID="#D7DFE8", MUTE="#5B6B80",
+      C_INF="#D33F49", C_L2="#2A9D8F", C_L1="#E9A03B",
+      C_AAT="#3454D1", C_BASE="#9AA7B6";
+
+  function runSim(gamma, tau){
+    var n = CLASSES.length;
+    var A  = CLASSES.map(function(c){ return 0.10 - 0.05*c.v; });
+    var E  = CLASSES.map(function(){ return 2.0; });
+    var targetA = {inf:0.50, l2:0.78, l1:0.56};
+    var targetS = {inf:0.40, l2:0.755, l1:0.46};
+    var R  = {inf:0.06, l2:0.12, l1:0.08};
+    var Rs = {inf:0.06, l2:0.12, l1:0.08};
+    var U = 0.05, Us = 0.05;
+    var hist = {eps:[], epsStatic:[], w:[], union:[], unionS:[]};
+    var norms = ["inf","l2","l1"];
+
+    for(var t=0; t<=T_MAX; t++){
+      hist.eps.push(E.slice());
+      hist.epsStatic.push(2 + 6*(t/T_MAX));
+      var ws = norms.map(function(p){ return Math.exp(-gamma*R[p]); });
+      var Z = ws[0]+ws[1]+ws[2];
+      hist.w.push({inf:ws[0]/Z, l2:ws[1]/Z, l1:ws[2]/Z});
+      hist.union.push(U);
+      hist.unionS.push(Us);
+
+      for(var c=0; c<n; c++){
+        var v = CLASSES[c].v;
+        var ceil = 0.84 - 0.34*v;
+        var comfort = 2 + 10*A[c];
+        var strain = Math.max(0, E[c]-comfort)/10;
+        A[c] += 0.055*(ceil-A[c]) - 0.06*strain + 0.003*Math.sin(t*0.9 + c*1.7);
+        A[c] = Math.min(Math.max(A[c],0),1);
+        E[c] = Math.min(12, Math.max(2, E[c] + 0.35*(A[c]-tau)));
+      }
+      for(var i=0;i<3;i++){
+        var p = norms[i];
+        var boost = 1 + 1.6*hist.w[t][p];
+        R[p]  += 0.045*boost*(targetA[p]-R[p]);
+        Rs[p] += 0.05*(targetS[p]-Rs[p]);
+      }
+      U  += 0.05*(0.49-U)*(1 + 0.4*Math.min(1, t/30));
+      Us += 0.05*(0.445-Us);
+    }
+    return hist;
+  }
+
+  function drawChart(el, series, epoch, opts){
+    var W=560, H=opts.height||190, L=44, Rm=10, T=12, B=24;
+    var yMin=opts.yMin||0, yMax=opts.yMax||1;
+    function x(t){ return L + (W-L-Rm)*t/T_MAX; }
+    function y(v){ return T + (H-T-B)*(1-(v-yMin)/(yMax-yMin)); }
+    var fmt = opts.yFmt || function(v){ return Math.round(v*100)+"%"; };
+    var s = '<svg viewBox="0 0 '+W+' '+H+'" role="img">';
+    opts.yTicks.forEach(function(v){
+      s += '<line x1="'+L+'" x2="'+(W-Rm)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+GRID+'" stroke-width="1"/>';
+      s += '<text x="'+(L-6)+'" y="'+(y(v)+3.5)+'" text-anchor="end" font-size="10" fill="'+MUTE+'" font-family="IBM Plex Mono,monospace">'+fmt(v)+'</text>';
+    });
+    [0,20,40,60,80].forEach(function(t){
+      s += '<text x="'+x(t)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="'+MUTE+'" font-family="IBM Plex Mono,monospace">'+t+'</text>';
+    });
+    series.forEach(function(ser){
+      var pts = ser.points.slice(0, epoch+1);
+      if(pts.length < 2) return;
+      var d = "";
+      pts.forEach(function(v,t){ d += (t===0?"M":"L") + x(t).toFixed(1) + "," + y(v).toFixed(1); });
+      s += '<path d="'+d+'" fill="none" stroke="'+ser.color+'" stroke-width="'+(ser.width||1.8)+'"'
+        + (ser.dash ? ' stroke-dasharray="'+ser.dash+'"' : '')
+        + ' opacity="'+(ser.opacity!==undefined?ser.opacity:1)+'" stroke-linejoin="round"/>';
+    });
+    s += '<line x1="'+x(epoch)+'" x2="'+x(epoch)+'" y1="'+T+'" y2="'+(H-B)+'" stroke="'+INK+'" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>';
+    s += '</svg>';
+    el.innerHTML = s;
+  }
+
+  var epoch=0, playing=false, gamma=3.0, tau=0.5, timer=null;
+  var hist = runSim(gamma, tau);
+
+  function $(id){ return document.getElementById(id); }
+  var elEps=$("chartEps"), elNorm=$("chartNorm"), elUnion=$("chartUnion");
+
+  function render(){
+    var epsSeries = CLASSES.map(function(c,i){
+      return {
+        points: hist.eps.map(function(row){ return row[i]/12; }),
+        color: "hsl("+(210 - c.v*180)+","+(45 + c.v*30)+"%,"+(52 - c.v*8)+"%)",
+        width:1.5, opacity:0.9
+      };
+    });
+    epsSeries.push({points: hist.epsStatic.map(function(v){return v/12;}), color:INK, dash:"5 4", width:1.6});
+    drawChart(elEps, epsSeries, epoch,
+      {yMax:1, yTicks:[0,0.25,0.5,0.75,1], yFmt:function(v){ return (v*12).toFixed(0); }});
+
+    drawChart(elNorm, [
+      {points:hist.w.map(function(x){return x.inf;}), color:C_INF, width:2},
+      {points:hist.w.map(function(x){return x.l2;}),  color:C_L2,  width:2},
+      {points:hist.w.map(function(x){return x.l1;}),  color:C_L1,  width:2}
+    ], epoch, {yMax:0.7, yTicks:[0,0.2,0.4,0.6]});
+
+    drawChart(elUnion, [
+      {points:hist.union,  color:C_AAT,  width:2.4},
+      {points:hist.unionS, color:C_BASE, width:2, dash:"5 4"}
+    ], epoch, {yMax:0.6, yTicks:[0,0.15,0.3,0.45,0.6], height:210});
+
+    var w = hist.w[epoch];
+    $("wInf").textContent = Math.round(w.inf*100);
+    $("wL2").textContent  = Math.round(w.l2*100);
+    $("wL1").textContent  = Math.round(w.l1*100);
+    var U = hist.union[epoch], Us = hist.unionS[epoch];
+    $("statAAT").textContent  = (U*100).toFixed(1)+"%";
+    $("statBase").textContent = (Us*100).toFixed(1)+"%";
+    $("statGain").textContent = "+"+((U-Us)*100).toFixed(1);
+    $("epochLabel").textContent = "epoch · "+epoch+"/"+T_MAX;
+    $("epochSlider").value = epoch;
+    $("playBtn").textContent = playing ? "Pause" : (epoch>=T_MAX ? "Replay" : "Train");
+  }
+
+  function stop(){ playing=false; if(timer){clearInterval(timer); timer=null;} render(); }
+
+  $("playBtn").addEventListener("click", function(){
+    if(playing){ stop(); return; }
+    if(epoch>=T_MAX) epoch=0;
+    playing=true;
+    timer=setInterval(function(){
+      epoch++;
+      if(epoch>=T_MAX){ epoch=T_MAX; stop(); return; }
+      render();
+    }, 70);
+    render();
+  });
+  $("resetBtn").addEventListener("click", function(){ epoch=0; stop(); });
+  $("epochSlider").addEventListener("input", function(e){ epoch=+e.target.value; if(playing) stop(); else render(); });
+  $("gammaSlider").addEventListener("input", function(e){
+    gamma=+e.target.value;
+    $("gammaLabel").textContent="γ norm sharpness · "+gamma.toFixed(1);
+    hist=runSim(gamma,tau); render();
+  });
+  $("tauSlider").addEventListener("input", function(e){
+    tau=+e.target.value;
+    $("tauLabel").textContent="τ target robust acc · "+Math.round(tau*100)+"%";
+    hist=runSim(gamma,tau); render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

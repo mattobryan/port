@@ -257,11 +257,6 @@
             letter-spacing: -0.025em;
             line-height: 1.08;
             margin-bottom: 0.65rem;
-            background: linear-gradient(115deg, var(--ink) 55%, var(--accent) 85%, var(--accent-2));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent;
         }
 
         .role-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
@@ -468,6 +463,21 @@
 
         .data-error { font-size: 13px; color: var(--ink-soft); padding: 2rem; text-align: center; }
 
+        /* Kinetic hero name */
+        .kin-w { display: inline-block; white-space: pre; }
+        .kin-l {
+            display: inline-block;
+            animation: kin-rise 620ms cubic-bezier(.2,.65,.25,1) both;
+            animation-delay: calc(120ms + var(--d) * 34ms);
+        }
+        @keyframes kin-rise {
+            from { opacity: 0; transform: translateY(0.55em) rotate(5deg); }
+            to { opacity: 1; transform: none; }
+        }
+
+        /* Magnetic buttons */
+        .magnetic { display: inline-block; transition: transform 220ms cubic-bezier(.2,.6,.2,1); will-change: transform; }
+
         /* Tablet */
         @media (max-width: 900px) {
             .span-4, .span-6, .span-8 { grid-column: span 6; }
@@ -493,9 +503,9 @@
 
         @media (prefers-reduced-motion: reduce) {
             .view.active .tile, .view.active .projects-sidebar, .view.active .project-detail,
-            .project-detail.swap > *, .avatar-ring::before, .badge-live::before { animation: none !important; }
+            .project-detail.swap > *, .avatar-ring::before, .badge-live::before, .kin-l { animation: none !important; }
             .donut-svg .seg { transition: stroke-width 160ms ease, opacity 160ms ease; }
-            .tile, .hero-links a, .jump-links button, .project-nav-item { transition: none; }
+            .tile, .hero-links a, .jump-links button, .project-nav-item, .magnetic { transition: none; }
         }
     </style>
 </head>
@@ -620,6 +630,33 @@
 
         /* ---------- views ---------- */
 
+        function hexLerp(a, b, t) {
+            function px(h) { h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, function (c) { return c + c; }); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+            var A = px(a), B = px(b);
+            return 'rgb(' + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(',') + ')';
+        }
+
+        function kineticName(name) {
+            // gradient is computed per-letter because animated letter spans get their
+            // own paint layers, which breaks background-clip:text on the parent
+            var css = getComputedStyle(document.documentElement);
+            var ink = css.getPropertyValue('--ink').trim();
+            var acc = css.getPropertyValue('--accent').trim();
+            var acc2 = css.getPropertyValue('--accent-2').trim();
+            var total = String(name).replace(/ /g, '').length || 1;
+            var d = 0, li = 0;
+            return String(name).split(' ').map(function (word) {
+                var letters = word.split('').map(function (ch) {
+                    var t = li++ / Math.max(total - 1, 1);
+                    var color = t < 0.5 ? ink : (t < 0.85 ? hexLerp(acc, acc, 0) : hexLerp(acc, acc2, (t - 0.85) / 0.15));
+                    if (t >= 0.5 && t < 0.85) color = hexLerp(ink, acc, (t - 0.5) / 0.35);
+                    return '<span class="kin-l" style="--d:' + (d++) + ';color:' + color + '">' + esc(ch) + '</span>';
+                }).join('');
+                d += 2;
+                return '<span class="kin-w">' + letters + '</span>';
+            }).join(' ');
+        }
+
         function renderHome() {
             var p = DATA.profile;
             var initials = esc(p.initials || '');
@@ -633,7 +670,7 @@
                     '</div></div>' +
                     '<div class="hero-body">' +
                         '<p class="eyebrow">' + esc((p.roles || [])[0] || '') + '</p>' +
-                        '<h1>' + esc(p.name) + '</h1>' +
+                        '<h1>' + kineticName(p.name) + '</h1>' +
                         '<div class="role-row">' + (p.roles || []).map(function (r) { return '<span class="role-chip">' + esc(r) + '</span>'; }).join('') + '</div>' +
                         '<p class="lede tag-line">' + esc(p.tagline) + '</p>' +
                         (p.bio || []).map(function (para) { return '<p class="lede">' + esc(para) + '</p>'; }).join('') +
@@ -647,12 +684,12 @@
                         '<div class="hero-links">' +
                             (p.links || []).map(function (l) {
                                 var external = /^https?:/.test(l.url);
-                                return '<a href="' + esc(l.url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + '>' + esc(l.label) + '</a>';
+                                return '<a class="magnetic" href="' + esc(l.url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + '>' + esc(l.label) + '</a>';
                             }).join('') +
                         '</div>' +
                         '<div class="jump-links">' +
-                            '<button class="primary" data-view="projects">See my projects →</button>' +
-                            '<button class="ghost" data-view="research">Research & work →</button>' +
+                            '<button class="primary magnetic" data-view="projects">See my projects →</button>' +
+                            '<button class="ghost magnetic" data-view="research">Research & thesis →</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -760,9 +797,28 @@
         }
 
         function renderResearch() {
-            return '<div class="grid">' + DATA.research.map(function (r, i) {
-                return '<div class="tile tile-research span-4" style="--i:' + i + '"><h3>' + esc(r.name) + '</h3><p class="desc">' + esc(r.desc) + '</p><p class="meta">' + esc(r.meta) + '</p></div>';
+            var html = '<div class="grid">';
+            var offset = 0;
+            if (DATA.thesis) {
+                html += '<div class="tile span-12" style="--i:0">' +
+                    '<div class="card-head"><h3>' + esc(DATA.thesis.title) + '</h3><span class="badge badge-live">Interactive</span></div>' +
+                    '<p class="card-summary">' + esc(DATA.thesis.summary) + '</p>' +
+                    '<div class="demo-embed">' +
+                        '<div class="chrome-bar">' +
+                            '<span class="chrome-dot r"></span><span class="chrome-dot y"></span><span class="chrome-dot g"></span>' +
+                            '<span class="chrome-url"><a href="' + esc(DATA.thesis.url) + '" target="_blank" rel="noopener">' + esc(DATA.thesis.url) + '</a></span>' +
+                        '</div>' +
+                        '<div class="demo-loading"><div class="spinner"></div></div>' +
+                        '<iframe src="' + esc(DATA.thesis.url) + '" loading="lazy" title="' + esc(DATA.thesis.title) + '" style="height:640px" sandbox="allow-scripts allow-same-origin"></iframe>' +
+                    '</div>' +
+                    '<div class="card-actions"><a href="' + esc(DATA.thesis.url) + '" target="_blank" rel="noopener">Open full page ↗</a></div>' +
+                '</div>';
+                offset = 1;
+            }
+            html += DATA.research.map(function (r, i) {
+                return '<div class="tile tile-research span-4" style="--i:' + (i + offset) + '"><h3>' + esc(r.name) + '</h3><p class="desc">' + esc(r.desc) + '</p><p class="meta">' + esc(r.meta) + '</p></div>';
             }).join('') + '</div>';
+            return html;
         }
 
         function renderEducation() {
@@ -789,6 +845,38 @@
 
         var RENDERERS = { home: renderHome, projects: renderProjects, research: renderResearch, education: renderEducation, writing: renderWriting, contact: renderContact };
 
+        var finePointer = window.matchMedia('(pointer: fine)').matches;
+
+        function bindTilt() {
+            if (reduceMotion || !finePointer) return;
+            document.querySelectorAll('.view.active .tile').forEach(function (el) {
+                if (el.querySelector('iframe')) return;
+                var MAX = 3.5;
+                el.addEventListener('mousemove', function (e) {
+                    el.style.animation = 'none';
+                    var r = el.getBoundingClientRect();
+                    var px = (e.clientX - r.left) / r.width - 0.5;
+                    var py = (e.clientY - r.top) / r.height - 0.5;
+                    var k = Math.min(1, 420 / r.width);
+                    el.style.transform = 'perspective(900px) rotateX(' + (-py * MAX * k).toFixed(2) + 'deg) rotateY(' + (px * MAX * k).toFixed(2) + 'deg) translateY(-3px)';
+                });
+                el.addEventListener('mouseleave', function () { el.style.transform = ''; });
+            });
+        }
+
+        function bindMagnetic() {
+            if (reduceMotion || !finePointer) return;
+            document.querySelectorAll('.view.active .magnetic').forEach(function (el) {
+                el.addEventListener('mousemove', function (e) {
+                    var r = el.getBoundingClientRect();
+                    var dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+                    var dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+                    el.style.transform = 'translate(' + (dx * 8).toFixed(1) + 'px,' + (dy * 6).toFixed(1) + 'px)';
+                });
+                el.addEventListener('mouseleave', function () { el.style.transform = ''; });
+            });
+        }
+
         function movePill(name) {
             var btn = topnav.querySelector('button[data-view="' + name + '"]');
             if (!btn) return;
@@ -799,8 +887,10 @@
         function showView(name) {
             if (VIEWS.indexOf(name) === -1) name = 'home';
             app.innerHTML = '<div class="view active" id="view-' + name + '">' + RENDERERS[name]() + '</div>';
-            if (name === 'projects') { bindProjectSidebar(); bindDemoLoaders(); }
+            if (name === 'projects' || name === 'research') { bindProjectSidebar(); bindDemoLoaders(); }
             if (name === 'home') activateDonut(document.getElementById('donut-wrap'));
+            bindTilt();
+            bindMagnetic();
             topnav.querySelectorAll('button').forEach(function (b) {
                 b.classList.toggle('active', b.dataset.view === name);
             });
@@ -855,6 +945,54 @@
             resize();
             window.addEventListener('resize', resize);
 
+            // floating wireframe icosahedron (hero accent)
+            var PHI = (1 + Math.sqrt(5)) / 2;
+            var ICO_V = [
+                [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
+                [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
+                [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]
+            ];
+            var ICO_E = [];
+            for (var ea = 0; ea < 12; ea++) {
+                for (var eb = ea + 1; eb < 12; eb++) {
+                    var dx0 = ICO_V[ea][0] - ICO_V[eb][0], dy0 = ICO_V[ea][1] - ICO_V[eb][1], dz0 = ICO_V[ea][2] - ICO_V[eb][2];
+                    if (Math.abs(dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - 4) < 0.01) ICO_E.push([ea, eb]);
+                }
+            }
+            var wfAngle = 0.6;
+
+            function drawWireframe(animate) {
+                if (W < 760) return;
+                if (animate) wfAngle += 0.0035;
+                var cx = W * 0.86, cy = Math.min(H * 0.26, 250), s = Math.min(W, H) * 0.085;
+                var ca = Math.cos(wfAngle), sa = Math.sin(wfAngle);
+                var cb = Math.cos(wfAngle * 0.63), sb = Math.sin(wfAngle * 0.63);
+                var pts = ICO_V.map(function (v) {
+                    var x = v[0] * ca + v[2] * sa, z = -v[0] * sa + v[2] * ca, y = v[1];
+                    var y2 = y * cb - z * sb, z2 = y * sb + z * cb;
+                    var depth = (z2 + PHI) / (2 * PHI);
+                    return { x: cx + x * s / PHI, y: cy + y2 * s / PHI, d: depth };
+                });
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = colors.pulse;
+                ICO_E.forEach(function (e) {
+                    var p = pts[e[0]], q = pts[e[1]];
+                    ctx.globalAlpha = 0.06 + 0.13 * ((p.d + q.d) / 2);
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(q.x, q.y);
+                    ctx.stroke();
+                });
+                ctx.fillStyle = colors.pulse;
+                pts.forEach(function (p) {
+                    ctx.globalAlpha = 0.12 + 0.25 * p.d;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 1.7, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+            }
+
             function drawFrame(animate) {
                 ctx.clearRect(0, 0, W, H);
                 for (var i = 0; i < nodes.length; i++) {
@@ -888,6 +1026,7 @@
                     ctx.arc(nodes[k].x, nodes[k].y, 1.8, 0, Math.PI * 2);
                     ctx.fill();
                 }
+                drawWireframe(animate);
                 if (animate) {
                     // occasionally send a pulse along a random nearby pair
                     if (pulses.length < 4 && Math.random() < 0.02) {
