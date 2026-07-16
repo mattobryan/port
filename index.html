@@ -170,6 +170,7 @@
 
         .view { display: none; }
         .view.active { display: block; }
+        .view:focus { outline: none; }
 
         /* Staggered tile entrance */
         .view.active .tile, .view.active .projects-sidebar, .view.active .project-detail {
@@ -588,6 +589,20 @@
 
     <main id="app">
         <div class="data-error" id="loading">Loading…</div>
+        <noscript>
+            <div class="grid">
+                <div class="tile span-12">
+                    <h1 style="font-size:28px;margin-bottom:0.5rem;">Brian Matoke</h1>
+                    <p style="color:var(--ink-soft);margin-bottom:1rem;">AI Systems Engineer &amp; Data Protection Officer. I build AI systems that work in the real world.</p>
+                    <p style="font-size:14px;">
+                        <a href="mailto:briaynomwamba@gmail.com">briaynomwamba@gmail.com</a> ·
+                        <a href="https://github.com/mattobryan" target="_blank" rel="noopener">GitHub</a> ·
+                        <a href="https://linkedin.com/in/matokebrian" target="_blank" rel="noopener">LinkedIn</a>
+                    </p>
+                    <p style="font-size:12.5px;color:var(--ink-faint);margin-top:1rem;">This site's full interactive view needs JavaScript enabled.</p>
+                </div>
+            </div>
+        </noscript>
     </main>
 
     <script>
@@ -1068,9 +1083,10 @@
             navPill.style.width = btn.offsetWidth + 'px';
         }
 
-        function showView(name) {
+        function showView(name, opts) {
             if (VIEWS.indexOf(name) === -1) name = 'home';
-            app.innerHTML = '<div class="view active" id="view-' + name + '">' + RENDERERS[name]() + '</div>';
+            var push = opts && opts.push;
+            app.innerHTML = '<div class="view active" id="view-' + name + '" tabindex="-1">' + RENDERERS[name]() + '</div>';
             if (name === 'projects' || name === 'research') { bindProjectSidebar(); bindDemoLoaders(); }
             if (name === 'home') activateDonut(document.getElementById('donut-wrap'));
             if (name === 'writing') loadMedium();
@@ -1078,11 +1094,20 @@
             bindTilt();
             bindMagnetic();
             topnav.querySelectorAll('button').forEach(function (b) {
-                b.classList.toggle('active', b.dataset.view === name);
+                var isActive = b.dataset.view === name;
+                b.classList.toggle('active', isActive);
+                if (isActive) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
             });
             movePill(name);
-            if (location.hash.slice(1) !== name) history.replaceState(null, '', '#' + name);
+            // User-initiated nav (clicking a link/button) pushes a history entry so
+            // Back/Forward moves between views; hash-driven renders (initial load,
+            // popstate/hashchange already firing) only sync the URL, never re-push.
+            if (location.hash.slice(1) !== name) {
+                if (push) history.pushState(null, '', '#' + name);
+                else history.replaceState(null, '', '#' + name);
+            }
             window.scrollTo({ top: 0, behavior: 'auto' });
+            document.getElementById('view-' + name).focus({ preventScroll: true });
         }
 
         function bindNav() {
@@ -1093,11 +1118,11 @@
                         subject: 'Collaboration: ' + collab.dataset.collab,
                         message: 'Hi Brian,\n\nI’d like to collaborate on ' + collab.dataset.collab + ' — ',
                     };
-                    showView('contact');
+                    showView('contact', { push: true });
                     return;
                 }
                 var btn = e.target.closest('[data-view]');
-                if (btn) showView(btn.dataset.view);
+                if (btn) showView(btn.dataset.view, { push: true });
             });
             window.addEventListener('hashchange', function () { showView(location.hash.slice(1)); });
             window.addEventListener('resize', function () {
@@ -1136,6 +1161,10 @@
                     nodes.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22 });
                 }
                 nodes.length = target;
+                // Drop in-flight pulses referencing indices the shrink just invalidated —
+                // otherwise the next frame reads nodes[pl.a] === undefined and throws,
+                // permanently killing the rAF loop (nothing calls it again after a throw).
+                pulses = pulses.filter(function (pl) { return pl.a < nodes.length && pl.b < nodes.length; });
             }
             resize();
             window.addEventListener('resize', resize);
@@ -1280,7 +1309,11 @@
             .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(boot)
             .catch(function (err) {
-                app.innerHTML = '<div class="data-error">Could not load site content (' + esc(err.message) + '). Try refreshing.</div>';
+                // Hardcoded so a broken/unreachable data file never hides basic contact info.
+                app.innerHTML =
+                    '<div class="data-error">Could not load full site content (' + esc(err.message) + '). Try refreshing.<br><br>' +
+                    'In the meantime: <a href="mailto:briaynomwamba@gmail.com">briaynomwamba@gmail.com</a> · ' +
+                    '<a href="https://github.com/mattobryan" target="_blank" rel="noopener">GitHub</a></div>';
             });
     })();
     </script>

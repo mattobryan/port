@@ -13,6 +13,11 @@ module.exports = async (req, res) => {
   let payload;
   try {
     payload = verifyToken(token);
+    if (payload.action !== 'publish' && payload.action !== 'skip') {
+      // Rejects tokens minted for a different endpoint (e.g. api/cv.js's 'cv'
+      // action) that happen to verify against the same shared secret.
+      throw new Error(`This link isn't a project approval link (action: ${payload.action}).`);
+    }
   } catch (e) {
     res.setHeader('Content-Type', 'text/html');
     return res.status(400).send(page('Link invalid or expired', e.message, false));
@@ -32,6 +37,7 @@ module.exports = async (req, res) => {
 
     if (payload.action === 'publish') {
       const projectsFile = await getFile('data/projects.json');
+      if (!projectsFile.json) throw new Error('data/projects.json is missing or unreadable — nothing was published.');
       const projectsJson = projectsFile.json;
       projectsJson.projects = (projectsJson.projects || []).filter((p) => p.repo !== payload.repo);
       projectsJson.projects.push(payload.project);

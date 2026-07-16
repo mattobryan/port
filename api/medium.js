@@ -5,11 +5,19 @@
 const FEED_URL = process.env.MEDIUM_FEED || 'https://medium.com/feed/@MatokeBryan';
 const MAX_ARTICLES = 8;
 
+function decodeXmlEntities(s) {
+  return s.replace(/&(amp|lt|gt|quot|#39|apos);/g, (m, e) => ({
+    amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'",
+  }[e]));
+}
+
 function pick(block, tag) {
   const cdata = block.match(new RegExp('<' + tag + '><!\\[CDATA\\[([\\s\\S]*?)\\]\\]></' + tag + '>'));
   if (cdata) return cdata[1].trim();
   const plain = block.match(new RegExp('<' + tag + '>([\\s\\S]*?)</' + tag + '>'));
-  return plain ? plain[1].trim() : '';
+  // Non-CDATA XML fields still carry entity-escaped text (e.g. &amp;) — decode
+  // it here so index.html's esc() only ever escapes real HTML once, not twice.
+  return plain ? decodeXmlEntities(plain[1].trim()) : '';
 }
 
 module.exports = async (req, res) => {

@@ -6,9 +6,13 @@ const {
 const TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 const MAX_NEW_REPOS_PER_RUN = 5;
 
+// Fails CLOSED: with no CRON_SECRET configured, this endpoint would otherwise be
+// a public, unauthenticated trigger for paid Anthropic calls, GitHub writes, and
+// email sends. Set CRON_SECRET (and add it as a Vercel Cron secret) before relying
+// on this running unattended — see SETUP.md.
 function isAuthorized(req) {
   const secret = process.env.CRON_SECRET;
-  if (!secret) return true; // no secret configured yet -> allow (document this in SETUP.md)
+  if (!secret) return false;
   return req.headers.authorization === `Bearer ${secret}`;
 }
 
@@ -44,7 +48,12 @@ function draftEmailHtml({ candidates, langChanged, langStats, siteUrl }) {
 }
 
 module.exports = async (req, res) => {
-  if (!isAuthorized(req)) return res.status(401).json({ error: 'unauthorized' });
+  if (!isAuthorized(req)) {
+    const configured = !!process.env.CRON_SECRET;
+    return res.status(configured ? 401 : 503).json({
+      error: configured ? 'unauthorized' : 'CRON_SECRET is not set — see SETUP.md before triggering this endpoint',
+    });
+  }
 
   const siteUrl = process.env.SITE_URL || 'https://port-three-taupe.vercel.app';
   const log = { newRepos: [], langChanged: false, emailed: false, errors: [] };
@@ -75,8 +84,10 @@ module.exports = async (req, res) => {
 
     // --- new repo detection: needs human approval before publishing ---
     const newRepos = repos.filter((r) => !knownNames.has(r.full_name)).slice(0, MAX_NEW_REPOS_PER_RUN);
-    const styleExamples = (projectsFile.json.projects || []).slice(0, 2).map((p) =>
-      `Problem: ${p.problem} Approach: ${p.approach} Outcome: ${p.outcome}`).join('\n');
+    const existingProjects = (projectsFile.json && projectsFile.json.projects) || [];
+    const styleExamples = existingProjects.slice(0, 2).map((p) =>
+      `Problem: ${p.problem} Approach: ${p.approach} Outcome: ${p.outcome}`).join('\n')
+      || 'Problem: existing tools were clunky. Approach: built a focused rewrite. Outcome: a much nicer experience.';
 
     const candidates = [];
     for (const repo of newRepos) {
@@ -104,6 +115,9 @@ module.exports = async (req, res) => {
           skipUrl: approveUrl(siteUrl, skipToken),
         });
         log.newRepos.push(repo.full_name);
+        // Mark as pending immediately so an un-actioned repo isn't re-drafted
+        // (another paid Anthropic call) and re-emailed on every subsequent run.
+        knownJson.repos.push({ repo: repo.full_name, status: 'pending', updatedAt: new Date().toISOString().slice(0, 10) });
       } catch (e) {
         log.errors.push(`${repo.full_name}: ${e.message}`);
       }
@@ -115,6 +129,7 @@ module.exports = async (req, res) => {
         html: draftEmailHtml({ candidates, langChanged: log.langChanged, langStats: stats, siteUrl }),
       });
       log.emailed = true;
+      await putFile('data/known-repos.json', knownJson, known.sha, `Mark ${candidates.length} repo(s) as pending review`);
     }
 
     return res.status(200).json(log);

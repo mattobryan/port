@@ -18,8 +18,9 @@ Also set:
 - `CV_URL` — a shareable link to your CV (Google Drive share link, Dropbox, etc.).
   Never committed to the repo, so the CV itself stays private; approved requesters
   get this link by email.
-- `CRON_SECRET` — optional but recommended: any random string, also add it as a Vercel
-  Cron secret so `/api/scan` rejects requests that don't come from Vercel's own scheduler.
+- `CRON_SECRET` — **required**: any random string, also add it as a Vercel Cron secret.
+  Without it, `/api/scan` refuses to run at all (503) rather than running unauthenticated —
+  it would otherwise be a public trigger for paid Anthropic calls, GitHub writes, and email.
 - `MEDIUM_FEED` — optional; defaults to `https://medium.com/feed/@MatokeBryan`.
 
 ## What runs once those are set

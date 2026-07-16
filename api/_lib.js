@@ -26,7 +26,11 @@ function ghHeaders() {
 
 async function ghJson(path, opts) {
   const res = await fetch(`${GITHUB_API}${path}`, { ...opts, headers: { ...ghHeaders(), ...(opts && opts.headers) } });
-  if (!res.ok) throw new Error(`GitHub API ${path} -> ${res.status} ${await res.text()}`);
+  if (!res.ok) {
+    const err = new Error(`GitHub API ${path} -> ${res.status} ${await res.text()}`);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -63,12 +67,17 @@ async function getReadme(fullName) {
   }
 }
 
+// Returns { json: null, sha: null } only when the file genuinely doesn't exist (404).
+// Any other failure (rate limit, 5xx, network) re-throws, so callers never mistake
+// "GitHub had a hiccup" for "this file has never been created" — the two need very
+// different handling (the former should abort, the latter should default to empty).
 async function getFile(path) {
   try {
     const data = await ghJson(`/repos/${PORTFOLIO_OWNER}/${PORTFOLIO_REPO}/contents/${path}?ref=${BRANCH}`);
     return { json: JSON.parse(Buffer.from(data.content, 'base64').toString('utf8')), sha: data.sha };
   } catch (e) {
-    return { json: null, sha: null };
+    if (e.status === 404) return { json: null, sha: null };
+    throw e;
   }
 }
 
