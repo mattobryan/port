@@ -17,6 +17,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
+    <script>
+        // Stamped before first paint so there's no light->dark flash on load.
+        // Light is always the default; dark only applies once the visitor toggles it.
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
+
     <style>
         :root {
             --bg:            #FAFAF9;
@@ -48,32 +54,32 @@
             --lang-other:    #9CA3AF;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg:            #09090B;
-                --tile-bg:       rgba(19, 19, 23, 0.82);
-                --tile-solid:    #131317;
-                --ink:           #F5F5F7;
-                --ink-soft:      #ABABB4;
-                --ink-faint:     #71717A;
-                --border:        rgba(245, 245, 247, 0.09);
-                --border-strong: rgba(245, 245, 247, 0.2);
-                --accent:        #8583F0;
-                --accent-2:      #C084FC;
-                --accent-soft:   #1B1A38;
-                --accent-glow:   rgba(133, 131, 240, 0.16);
-                --live:          #4ADE80;
-                --live-soft:     #142218;
-                --private:       #E0C36A;
-                --private-soft:  #26210F;
-                --net-node:      rgba(133, 131, 240, 0.4);
-                --net-line:      rgba(133, 131, 240, 0.13);
-                --net-pulse:     rgba(192, 132, 252, 0.8);
-                --shadow:        0 12px 32px rgba(0, 0, 0, 0.4);
-                /* language palette — validated for dark surfaces */
-                --lang-kotlin:   #9C6BFA;
-                --lang-other:    #7A7A85;
-            }
+        /* Default theme is always light ("Claude-simple"); dark is opt-in via the
+           toggle (persisted in localStorage), never auto-applied from OS preference. */
+        :root[data-theme="dark"] {
+            --bg:            #09090B;
+            --tile-bg:       rgba(19, 19, 23, 0.82);
+            --tile-solid:    #131317;
+            --ink:           #F5F5F7;
+            --ink-soft:      #ABABB4;
+            --ink-faint:     #71717A;
+            --border:        rgba(245, 245, 247, 0.09);
+            --border-strong: rgba(245, 245, 247, 0.2);
+            --accent:        #8583F0;
+            --accent-2:      #C084FC;
+            --accent-soft:   #1B1A38;
+            --accent-glow:   rgba(133, 131, 240, 0.16);
+            --live:          #4ADE80;
+            --live-soft:     #142218;
+            --private:       #E0C36A;
+            --private-soft:  #26210F;
+            --net-node:      rgba(133, 131, 240, 0.4);
+            --net-line:      rgba(133, 131, 240, 0.13);
+            --net-pulse:     rgba(192, 132, 252, 0.8);
+            --shadow:        0 12px 32px rgba(0, 0, 0, 0.4);
+            /* language palette — validated for dark surfaces */
+            --lang-kotlin:   #9C6BFA;
+            --lang-other:    #7A7A85;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -166,6 +172,21 @@
         .topnav button:hover { color: var(--accent); }
         .topnav button.active { color: var(--accent); font-weight: 600; }
 
+        .theme-toggle {
+            flex: 0 0 auto;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--border-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px;
+            transition: border-color 160ms ease, transform 160ms ease;
+        }
+        .theme-toggle:hover { border-color: var(--accent); transform: rotate(-12deg); }
+        .theme-icon { display: none; line-height: 1; }
+        .theme-icon-sun { display: inline-block; }
+        :root[data-theme="dark"] .theme-icon-sun { display: none; }
+        :root[data-theme="dark"] .theme-icon-moon { display: inline-block; }
+
         main { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 1.5rem 1.5rem 3.5rem; }
 
         .view { display: none; }
@@ -208,8 +229,63 @@
 
         .tile h2, .tile h3 { font-weight: 700; letter-spacing: -0.015em; }
 
-        /* Hero */
-        .tile-hero { overflow: hidden; display: flex; gap: 1.75rem; align-items: flex-start; }
+        /* Persona-style hero: name/eyebrow/socials on the left, large portrait on the right */
+        .hero-v2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 2rem; align-items: start; }
+        .hero-v2-portrait { position: sticky; top: 88px; }
+        .eyebrow-lg { font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; }
+        .hero-v2-name {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 0.98;
+            margin-bottom: 1rem;
+        }
+        .role-subtitle { font-size: 15px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.02em; margin-bottom: 1.5rem; }
+        .social-circles { display: flex; gap: 10px; }
+        .social-circle {
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid var(--border-strong);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+            transition: border-color 160ms ease, color 160ms ease, transform 160ms ease, background 160ms ease;
+        }
+        .social-circle:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); transform: translateY(-2px); }
+
+        .portrait-frame {
+            position: relative;
+            width: 100%; aspect-ratio: 4 / 5;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(150deg, var(--accent), var(--accent-2));
+        }
+        .portrait-frame img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            filter: grayscale(65%) contrast(1.02);
+            transition: filter 420ms ease, transform 420ms ease;
+        }
+        .portrait-frame:hover img { filter: grayscale(0%); transform: scale(1.035); }
+        .portrait-frame::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(200deg, transparent 55%, color-mix(in srgb, var(--accent) 35%, transparent) 130%);
+            pointer-events: none;
+        }
+        .portrait-fallback {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+            color: rgba(255,255,255,0.9); text-align: center; padding: 1rem;
+        }
+
+        @media (max-width: 760px) {
+            .hero-v2 { grid-template-columns: 1fr; gap: 1.25rem; }
+            .hero-v2-portrait { order: -1; position: static; }
+            .portrait-frame { aspect-ratio: 16 / 10; }
+        }
+
+        /* About/bio tile (second row, alongside the languages tile) */
+        .tile-hero { overflow: hidden; }
         .tile-hero::before {
             content: "";
             position: absolute; inset: 0;
@@ -219,34 +295,6 @@
             pointer-events: none;
         }
 
-        .avatar-ring {
-            position: relative;
-            flex: 0 0 auto;
-            width: 92px; height: 92px;
-            border-radius: 50%;
-            padding: 3px;
-        }
-        .avatar-ring::before {
-            content: "";
-            position: absolute; inset: 0;
-            border-radius: 50%;
-            background: conic-gradient(from var(--ring-angle, 0deg), var(--accent), var(--accent-2), transparent 55%, var(--accent));
-            animation: ring-spin 9s linear infinite;
-        }
-        @property --ring-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-        @keyframes ring-spin { to { --ring-angle: 360deg; } }
-
-        .avatar {
-            position: relative;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex; align-items: center; justify-content: center;
-            border: 3px solid var(--bg);
-        }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .avatar-fallback { color: #fff; font-size: 30px; font-weight: 700; font-family: 'Sora', sans-serif; }
 
         .hero-body { flex: 1 1 auto; min-width: 0; position: relative; }
 
@@ -334,6 +382,9 @@
         .lang-chip .lang-chip-pct { font-variant-numeric: tabular-nums; color: var(--ink-faint); }
         .lang-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; flex: 0 0 auto; }
         .lang-note { font-size: 11px; color: var(--ink-faint); margin-bottom: 1.1rem; line-height: 1.5; }
+
+        .lang-tile-row { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+        .lang-tile-col { flex: 1 1 280px; }
 
         .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .tag {
@@ -563,7 +614,7 @@
 
         @media (prefers-reduced-motion: reduce) {
             .view.active .tile, .view.active .projects-sidebar, .view.active .project-detail,
-            .project-detail.swap > *, .avatar-ring::before, .badge-live::before, .kin-l { animation: none !important; }
+            .project-detail.swap > *, .badge-live::before, .kin-l { animation: none !important; }
             .donut-svg .seg { transition: stroke-width 160ms ease, opacity 160ms ease; }
             .tile, .hero-links a, .jump-links button, .project-nav-item, .magnetic { transition: none; }
         }
@@ -585,6 +636,9 @@
             <button data-view="writing">Writing</button>
             <button data-view="contact">Contact</button>
         </div>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme" title="Switch theme">
+            <span class="theme-icon theme-icon-sun">☀️</span><span class="theme-icon theme-icon-moon">🌙</span>
+        </button>
     </nav>
 
     <main id="app">
@@ -612,6 +666,7 @@
         var topnav = document.getElementById('topnav');
         var navPill = document.getElementById('nav-pill');
         var currentProjectId = null;
+        var currentView = 'home';
         var DATA = null;
         var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -731,57 +786,72 @@
             }).join(' ');
         }
 
+        function socialAbbrev(label) {
+            var map = { GitHub: 'GH', LinkedIn: 'in', Medium: 'Me', Email: '✉' };
+            return map[label] || label.slice(0, 2).toUpperCase();
+        }
+
         function renderHome() {
             var p = DATA.profile;
             var initials = esc(p.initials || '');
             var liveCount = DATA.projects.filter(function (x) { return x.demoUrl; }).length;
             return (
                 '<div class="grid">' +
-                '<div class="tile tile-hero span-8" style="--i:0">' +
-                    '<div class="avatar-ring"><div class="avatar">' +
-                        '<img src="' + esc(p.avatar) + '" alt="Photo of ' + esc(p.name) + '" onerror="this.style.display=\'none\'">' +
-                        '<span class="avatar-fallback">' + initials + '</span>' +
-                    '</div></div>' +
-                    '<div class="hero-body">' +
-                        '<p class="eyebrow">' + esc((p.roles || [])[0] || '') + '</p>' +
-                        '<h1>' + kineticName(p.name) + '</h1>' +
-                        '<div class="role-row">' + (p.roles || []).map(function (r) { return '<span class="role-chip">' + esc(r) + '</span>'; }).join('') + '</div>' +
-                        '<p class="lede tag-line">' + esc(p.tagline) + '</p>' +
-                        (p.bio || []).map(function (para) { return '<p class="lede">' + esc(para) + '</p>'; }).join('') +
-                        '<p class="loc">' + esc(p.location) + '</p>' +
-                        '<div class="stat-strip">' +
-                            '<div class="stat"><b data-count="20">20M+</b><span>records processed</span></div>' +
-                            '<div class="stat"><b>' + DATA.projects.length + '</b><span>featured projects</span></div>' +
-                            '<div class="stat"><b>' + liveCount + '</b><span>live demos</span></div>' +
-                            '<div class="stat"><b>' + DATA.languages.repoCount + '</b><span>repos scanned</span></div>' +
+                '<div class="tile tile-hero span-12" style="--i:0">' +
+                    '<div class="hero-v2">' +
+                        '<div class="hero-v2-copy">' +
+                            '<p class="eyebrow-lg">Hello, my name is</p>' +
+                            '<h1 class="hero-v2-name">' + kineticName(p.name) + '</h1>' +
+                            '<p class="role-subtitle">' + esc((p.roles || []).join(' · ')) + '</p>' +
+                            '<div class="social-circles">' +
+                                (p.links || []).map(function (l) {
+                                    var external = /^https?:/.test(l.url);
+                                    return '<a class="social-circle magnetic" href="' + esc(l.url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + ' aria-label="' + esc(l.label) + '" title="' + esc(l.label) + '">' + esc(socialAbbrev(l.label)) + '</a>';
+                                }).join('') +
+                            '</div>' +
+                            '<p class="lede tag-line">' + esc(p.tagline) + '</p>' +
+                            (p.bio || []).map(function (para) { return '<p class="lede">' + esc(para) + '</p>'; }).join('') +
+                            '<p class="loc">' + esc(p.location) + '</p>' +
+                            '<div class="stat-strip">' +
+                                '<div class="stat"><b>20M+</b><span>records processed</span></div>' +
+                                '<div class="stat"><b>' + DATA.projects.length + '</b><span>featured projects</span></div>' +
+                                '<div class="stat"><b>' + liveCount + '</b><span>live demos</span></div>' +
+                                '<div class="stat"><b>' + DATA.languages.repoCount + '</b><span>repos scanned</span></div>' +
+                            '</div>' +
+                            '<div class="jump-links">' +
+                                '<button class="primary magnetic" data-view="projects">See my projects →</button>' +
+                                '<button class="ghost magnetic" data-view="research">Research & thesis →</button>' +
+                                '<button class="ghost magnetic" data-view="contact">Request my CV →</button>' +
+                            '</div>' +
                         '</div>' +
-                        '<div class="hero-links">' +
-                            (p.links || []).map(function (l) {
-                                var external = /^https?:/.test(l.url);
-                                return '<a class="magnetic" href="' + esc(l.url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + '>' + esc(l.label) + '</a>';
-                            }).join('') +
-                        '</div>' +
-                        '<div class="jump-links">' +
-                            '<button class="primary magnetic" data-view="projects">See my projects →</button>' +
-                            '<button class="ghost magnetic" data-view="research">Research & thesis →</button>' +
-                            '<button class="ghost magnetic" data-view="contact">Request my CV →</button>' +
+                        '<div class="hero-v2-portrait">' +
+                            '<div class="portrait-frame">' +
+                                '<span class="portrait-fallback">' + initials + '</span>' +
+                                '<img src="' + esc(p.avatar) + '" alt="Photo of ' + esc(p.name) + '" onerror="this.style.display=\'none\'">' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
-                '<div class="tile span-4" style="--i:1">' +
-                    '<h2 class="section-title">Languages · across all repos</h2>' +
-                    '<div class="donut-wrap" id="donut-wrap">' +
-                        donutSvg(DATA.languages.stats) +
-                        '<div class="lang-legend">' +
-                            DATA.languages.stats.map(function (s, i) {
-                                return '<span class="lang-chip" data-i="' + i + '"><span class="lang-chip-name"><span class="lang-dot" style="background:' + esc(langColor(s)) + '"></span>' + esc(s.name) + '</span><span class="lang-chip-pct">' + s.pct + '%</span></span>';
-                            }).join('') +
+                '<div class="tile span-12" style="--i:1">' +
+                    '<div class="lang-tile-row">' +
+                        '<div class="lang-tile-col">' +
+                            '<h2 class="section-title">Languages · across all repos</h2>' +
+                            '<div class="donut-wrap" id="donut-wrap">' +
+                                donutSvg(DATA.languages.stats) +
+                                '<div class="lang-legend">' +
+                                    DATA.languages.stats.map(function (s, i) {
+                                        return '<span class="lang-chip" data-i="' + i + '"><span class="lang-chip-name"><span class="lang-dot" style="background:' + esc(langColor(s)) + '"></span>' + esc(s.name) + '</span><span class="lang-chip-pct">' + s.pct + '%</span></span>';
+                                    }).join('') +
+                                '</div>' +
+                                '<div class="donut-tip"></div>' +
+                            '</div>' +
+                            '<p class="lang-note">' + esc(DATA.languages.note) + ' (' + DATA.languages.repoCount + ' repos, updated ' + esc(DATA.languages.updatedAt) + ')</p>' +
                         '</div>' +
-                        '<div class="donut-tip"></div>' +
+                        '<div class="lang-tile-col">' +
+                            '<h2 class="section-title">Focus areas</h2>' +
+                            '<div class="tag-row">' + DATA.focusAreas.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+                        '</div>' +
                     '</div>' +
-                    '<p class="lang-note">' + esc(DATA.languages.note) + ' (' + DATA.languages.repoCount + ' repos, updated ' + esc(DATA.languages.updatedAt) + ')</p>' +
-                    '<h2 class="section-title">Focus areas</h2>' +
-                    '<div class="tag-row">' + DATA.focusAreas.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
                 '</div>' +
                 '</div>'
             );
@@ -1086,6 +1156,7 @@
         function showView(name, opts) {
             if (VIEWS.indexOf(name) === -1) name = 'home';
             var push = opts && opts.push;
+            currentView = name;
             app.innerHTML = '<div class="view active" id="view-' + name + '" tabindex="-1">' + RENDERERS[name]() + '</div>';
             if (name === 'projects' || name === 'research') { bindProjectSidebar(); bindDemoLoaders(); }
             if (name === 'home') activateDonut(document.getElementById('donut-wrap'));
@@ -1106,7 +1177,7 @@
                 if (push) history.pushState(null, '', '#' + name);
                 else history.replaceState(null, '', '#' + name);
             }
-            window.scrollTo({ top: 0, behavior: 'auto' });
+            if (!(opts && opts.preserveScroll)) window.scrollTo({ top: 0, behavior: 'auto' });
             document.getElementById('view-' + name).focus({ preventScroll: true });
         }
 
@@ -1131,6 +1202,21 @@
             });
         }
 
+        function bindThemeToggle() {
+            var btn = document.getElementById('theme-toggle');
+            btn.addEventListener('click', function () {
+                var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+                else document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', next);
+                btn.setAttribute('aria-label', 'Switch to ' + (next === 'dark' ? 'light' : 'dark') + ' theme');
+                window.dispatchEvent(new Event('themechange'));
+                // Donut/kinetic-name colors are baked per-letter/segment from CSS vars
+                // at render time, so a theme flip needs a re-render to pick up the change.
+                showView(currentView, { preserveScroll: true });
+            });
+        }
+
         /* ---------- node-network background ---------- */
 
         function initNetwork() {
@@ -1148,9 +1234,7 @@
                 colors.pulse = cssVar('--net-pulse');
             }
             refreshColors();
-            if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refreshColors);
-            }
+            window.addEventListener('themechange', refreshColors);
 
             function resize() {
                 W = window.innerWidth; H = window.innerHeight;
@@ -1301,6 +1385,7 @@
             wm.innerHTML = esc((data.profile.name || '').toUpperCase()) + '<span class="dot">.</span>';
             document.title = data.profile.name + ' - ' + (data.profile.roles || [])[0];
             bindNav();
+            bindThemeToggle();
             showView(location.hash.slice(1) || 'home');
             initNetwork();
         }
