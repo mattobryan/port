@@ -20,13 +20,13 @@ body{
                    linear-gradient(90deg,rgba(215,223,232,.35) 1px,transparent 1px);
   background-size:28px 28px;
 }
-.wrap{max-width:1040px;margin:0 auto;padding:40px 22px 80px}
+.wrap{max-width:1100px;margin:0 auto;padding:40px 22px 80px}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 h1{font-family:'Sora',sans-serif;font-weight:700;font-size:clamp(30px,4.6vw,50px);line-height:1.06;margin:10px 0 14px}
 h1 .em{color:var(--caat)}
 h2{font-family:'Sora',sans-serif;font-weight:600;font-size:22px;margin:0 0 8px}
-p.lede{font-size:17px;line-height:1.65;max-width:64ch;color:#2A3A52}
-p.body{font-size:15px;line-height:1.65;max-width:66ch;color:#2A3A52}
+p.lede{font-size:17px;line-height:1.65;max-width:74ch;color:#2A3A52}
+p.body{font-size:15px;line-height:1.65;max-width:76ch;color:#2A3A52}
 .card{background:var(--card);border:1px solid var(--grid);border-radius:10px;padding:20px;box-shadow:0 1px 2px rgba(22,35,59,.05)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -52,10 +52,23 @@ thead th{font-size:12px;color:var(--mute);font-weight:500}
 .loopnum{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--caat);border:1px solid var(--caat);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .looptitle{font-family:'Sora',sans-serif;font-weight:600;margin-bottom:4px}
 .loopdesc{font-size:13.5px;line-height:1.55;color:#2A3A52}
-section{margin-top:56px}
+section{margin-top:40px}
 .note{font-size:12.5px;color:var(--mute);max-width:66ch;line-height:1.5}
 footer{margin-top:60px;border-top:1px solid var(--grid);padding-top:18px}
 svg{display:block;width:100%;height:auto}
+.pert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:700px){.pert-grid{grid-template-columns:1fr}}
+.pert-cell canvas{width:100%;aspect-ratio:1;border-radius:8px;border:1px solid var(--grid);background:#fff;image-rendering:pixelated}
+.pert-cell-label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--mute);margin-top:6px;text-align:center}
+.norm-picker{display:flex;gap:6px;background:var(--paper);border:1px solid var(--grid);border-radius:9px;padding:3px}
+.norm-picker button{flex:1;font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:7px 10px;border-radius:7px;border:none;background:transparent;color:var(--mute);cursor:pointer}
+.norm-picker button.active{background:var(--ink);color:#fff}
+.conf-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.conf-label{font-family:'IBM Plex Mono',monospace;font-size:12.5px;width:52px;color:var(--mute)}
+.conf-bar{flex:1;height:10px;border-radius:6px;background:var(--grid);overflow:hidden}
+.conf-fill{height:100%;border-radius:6px;transition:width 160ms ease,background 160ms ease}
+.conf-pct{font-family:'IBM Plex Mono',monospace;font-size:12.5px;width:42px;text-align:right}
+.pred-badge{display:inline-flex;align-items:center;gap:6px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;padding:6px 14px;border-radius:999px;margin-bottom:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 /* compact mode when embedded in the portfolio (?embed=1) */
 .embed .wrap{padding:18px 16px 36px}
@@ -112,6 +125,65 @@ svg{display:block;width:100%;height:auto}
       hands every class the same attack budget, overdefending the strong and abandoning
       the weak.
     </p>
+  </section>
+
+  <section>
+    <h2>What is a perturbation, actually?</h2>
+    <p class="body">
+      A perturbation is a tiny numeric nudge added to every pixel — one that's small enough
+      to be invisible (or nearly so) to a human, but large enough to push the model's internal
+      math past a decision boundary. The three panels below show the same image before and
+      after an ℓ∞/ℓ2/ℓ1-bounded perturbation, plus what that perturbation actually looks like
+      when its contrast is stretched so you can see it at all.
+    </p>
+
+    <div class="card" style="margin-top:14px">
+      <div class="controls" style="margin:0 0 16px">
+        <div class="slider" style="flex:1 1 220px">
+          <label id="pertEpsLabel">ε perturbation budget · 4 /255</label>
+          <input type="range" id="pertEpsSlider" min="0" max="16" step="1" value="4" style="width:100%">
+        </div>
+        <div class="norm-picker" role="group" aria-label="Threat model">
+          <button class="active" data-norm="linf">ℓ∞</button>
+          <button data-norm="l2">ℓ2</button>
+          <button data-norm="l1">ℓ1</button>
+        </div>
+      </div>
+
+      <div class="pert-grid">
+        <div class="pert-cell">
+          <canvas id="pertOriginal" width="130" height="130" aria-label="Original image"></canvas>
+          <div class="pert-cell-label">Original</div>
+        </div>
+        <div class="pert-cell">
+          <canvas id="pertNoise" width="130" height="130" aria-label="The perturbation itself, contrast-stretched to be visible"></canvas>
+          <div class="pert-cell-label">Perturbation (contrast-stretched)</div>
+        </div>
+        <div class="pert-cell">
+          <canvas id="pertResult" width="130" height="130" aria-label="Original plus perturbation, at true magnitude"></canvas>
+          <div class="pert-cell-label">Original + perturbation</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <span class="pred-badge" id="pertBadge">Predicted: CAT</span>
+        <div class="conf-row">
+          <span class="conf-label">cat</span>
+          <div class="conf-bar"><div class="conf-fill" id="pertBarCat" style="width:94%;background:var(--caat)"></div></div>
+          <span class="conf-pct" id="pertPctCat">94%</span>
+        </div>
+        <div class="conf-row">
+          <span class="conf-label">dog</span>
+          <div class="conf-bar"><div class="conf-fill" id="pertBarDog" style="width:6%;background:var(--cinf)"></div></div>
+          <span class="conf-pct" id="pertPctDog">6%</span>
+        </div>
+      </div>
+      <p class="note" style="margin-top:14px">
+        The classifier here is simulated (calibrated to degrade smoothly with ε, matching
+        the qualitative shape of the AAT results above), not a real model running inference —
+        the point is to make the mechanism legible, not to reproduce a specific forward pass.
+      </p>
+    </div>
   </section>
 
   <section>
@@ -415,6 +487,132 @@ svg{display:block;width:100%;height:auto}
   });
 
   render();
+})();
+
+(function () {
+  var oCanvas = document.getElementById('pertOriginal');
+  var nCanvas = document.getElementById('pertNoise');
+  var rCanvas = document.getElementById('pertResult');
+  if (!oCanvas) return; // section only exists on the full (non-embed-stripped) page
+  var W = oCanvas.width, H = oCanvas.height;
+  var octx = oCanvas.getContext('2d'), nctx = nCanvas.getContext('2d'), rctx = rCanvas.getContext('2d');
+
+  function drawCat(ctx) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#EEF2F6'; ctx.fillRect(0, 0, W, H);
+    var cx = W / 2, cy = H / 2 + 6, r = W * 0.32;
+    ctx.fillStyle = '#F0A85C';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - r * 0.9, cy - r * 0.7); ctx.lineTo(cx - r * 0.35, cy - r * 1.55); ctx.lineTo(cx - r * 0.05, cy - r * 0.75); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + r * 0.9, cy - r * 0.7); ctx.lineTo(cx + r * 0.35, cy - r * 1.55); ctx.lineTo(cx + r * 0.05, cy - r * 0.75); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#16233B';
+    ctx.beginPath(); ctx.ellipse(cx - r * 0.38, cy - r * 0.1, r * 0.13, r * 0.17, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r * 0.38, cy - r * 0.1, r * 0.13, r * 0.17, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#D3667A';
+    ctx.beginPath(); ctx.moveTo(cx - r * 0.1, cy + r * 0.28); ctx.lineTo(cx + r * 0.1, cy + r * 0.28); ctx.lineTo(cx, cy + r * 0.45); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#16233B'; ctx.lineWidth = 1.2;
+    [-1, 1].forEach(function (side) {
+      [0, 1, 2].forEach(function (i) {
+        ctx.beginPath();
+        ctx.moveTo(cx + side * r * 0.15, cy + r * 0.32 + i * 6);
+        ctx.lineTo(cx + side * r * 0.85, cy + r * 0.22 + i * 8);
+        ctx.stroke();
+      });
+    });
+  }
+
+  drawCat(octx);
+  var baseData = octx.getImageData(0, 0, W, H);
+
+  var state = { eps: 4, norm: 'linf' };
+
+  function genNoise() {
+    var n = W * H * 4;
+    var noise = new Float32Array(n);
+    var eps = state.eps;
+    if (state.norm === 'linf') {
+      for (var i = 0; i < n; i += 4) {
+        var v = (Math.random() * 2 - 1) * eps;
+        noise[i] = noise[i + 1] = noise[i + 2] = v;
+      }
+    } else if (state.norm === 'l2') {
+      var sumSq = 0;
+      for (var j = 0; j < n; j += 4) {
+        var u1 = Math.max(Math.random(), 1e-6), u2 = Math.random();
+        var g = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        noise[j] = noise[j + 1] = noise[j + 2] = g;
+        sumSq += g * g * 3;
+      }
+      var targetNorm = eps * Math.sqrt((n / 4) * 3) * 0.35;
+      var curNorm = Math.sqrt(sumSq) || 1;
+      var scale = targetNorm / curNorm;
+      for (var k = 0; k < n; k++) noise[k] *= scale;
+    } else { // l1: a few pixels, big changes
+      var count = Math.max(1, Math.round((eps / 16) * (n / 4) * 0.06));
+      for (var c = 0; c < count; c++) {
+        var idx = (Math.floor(Math.random() * (n / 4))) * 4;
+        var mag = (Math.random() > 0.5 ? 1 : -1) * (80 + Math.random() * 100);
+        noise[idx] = noise[idx + 1] = noise[idx + 2] = mag;
+      }
+    }
+    return noise;
+  }
+
+  function clamp255(v) { return v < 0 ? 0 : v > 255 ? 255 : v; }
+
+  function renderPerturbation() {
+    var noise = genNoise();
+    var n = noise.length;
+    var maxAbs = 1e-6;
+    for (var i = 0; i < n; i += 4) maxAbs = Math.max(maxAbs, Math.abs(noise[i]));
+
+    var noiseData = nctx.createImageData(W, H);
+    var resultData = rctx.createImageData(W, H);
+    for (var p = 0; p < n; p += 4) {
+      var v = noise[p];
+      var vis = clamp255(128 + (v / maxAbs) * 127);
+      noiseData.data[p] = noiseData.data[p + 1] = noiseData.data[p + 2] = vis;
+      noiseData.data[p + 3] = 255;
+      resultData.data[p] = clamp255(baseData.data[p] + v);
+      resultData.data[p + 1] = clamp255(baseData.data[p + 1] + v);
+      resultData.data[p + 2] = clamp255(baseData.data[p + 2] + v);
+      resultData.data[p + 3] = 255;
+    }
+    nctx.putImageData(noiseData, 0, 0);
+    rctx.putImageData(resultData, 0, 0);
+
+    // Illustrative confidence model: each norm degrades the "cat" score at a
+    // different rate, calibrated only to be qualitatively plausible.
+    var rate = { linf: 0.075, l2: 0.05, l1: 0.065 }[state.norm];
+    var catConf = Math.min(0.94, Math.max(0.03, 0.94 - rate * state.eps));
+    var dogConf = 1 - catConf;
+    var isDog = catConf < 0.5;
+
+    document.getElementById('pertBarCat').style.width = (catConf * 100).toFixed(0) + '%';
+    document.getElementById('pertBarDog').style.width = (dogConf * 100).toFixed(0) + '%';
+    document.getElementById('pertPctCat').textContent = (catConf * 100).toFixed(0) + '%';
+    document.getElementById('pertPctDog').textContent = (dogConf * 100).toFixed(0) + '%';
+    var badge = document.getElementById('pertBadge');
+    badge.textContent = 'Predicted: ' + (isDog ? 'DOG' : 'CAT');
+    badge.style.background = isDog ? '#FBE4E7' : '#E4F2EF';
+    badge.style.color = isDog ? '#B33A4A' : '#1F7A63';
+  }
+
+  document.getElementById('pertEpsSlider').addEventListener('input', function (e) {
+    state.eps = +e.target.value;
+    document.getElementById('pertEpsLabel').textContent = 'ε perturbation budget · ' + state.eps + ' /255';
+    renderPerturbation();
+  });
+  document.querySelectorAll('.norm-picker button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.norm-picker button').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.norm = btn.dataset.norm;
+      renderPerturbation();
+    });
+  });
+
+  renderPerturbation();
 })();
 </script>
 </body>
