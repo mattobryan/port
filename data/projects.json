@@ -126,6 +126,39 @@
     "url": "thesis.html"
   },
 
+  "experience": [
+    {
+      "role": "AI Automation Lead & Data Protection Officer",
+      "org": "Tamu Group",
+      "period": "2025 – Present",
+      "points": [
+        "Designed and deployed a production AI automation platform processing 100 documents/day with full data lineage and audit controls.",
+        "Served as the organisation's named Data Protection Officer under Kenya's DPA 2019, with zero data incidents through proactive governance architecture.",
+        "Held EU Foundation Certificate in Data Protection to ground the compliance work in recognised practice."
+      ]
+    },
+    {
+      "role": "MSc Researcher, AI/ML",
+      "org": "University of Szeged, Hungary",
+      "period": "2023 – 2025",
+      "points": [
+        "Designed Adaptive Adversarial Training, a curriculum-based robustness framework evaluated across three simultaneous threat models (L-inf, L2, L1) on CIFAR-10.",
+        "Improved union robustness by +3.5pp and clean accuracy by +6.9pp over the published RAMP baseline, on a single 12GB GPU.",
+        "Completed the EU Foundation Certificate in Data Protection alongside the degree."
+      ]
+    },
+    {
+      "role": "Data Systems Team Lead",
+      "org": "Konza Silicon",
+      "period": "2020 – 2022",
+      "points": [
+        "Built and maintained ETL pipelines processing 20M+ digitised citizen land records for Kenya's Joint National and Resource Mapping (JNAM) programme.",
+        "Designed ingestion-stage validation that cut data error rates by 50%+.",
+        "Led a 12-person technical team delivering the pipeline end-to-end."
+      ]
+    }
+  ],
+
   "research": [
     {
       "name": "Adversarial Robustness Research",

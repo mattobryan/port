@@ -502,6 +502,12 @@
         .timeline-item h3 { font-size: 14px; margin-bottom: 0.2rem; }
         .timeline-item p { font-size: 12.5px; color: var(--ink-soft); }
 
+        .exp-item { margin-bottom: 1.6rem; }
+        .exp-org { font-size: 12.5px; color: var(--ink-faint); margin-bottom: 0.5rem; }
+        .exp-points { margin: 0; padding-left: 1.1rem; }
+        .exp-points li { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 0.3rem; }
+        .exp-points li::marker { color: var(--accent); }
+
         .writing-text { font-size: 13px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 0.9rem; }
         .accent-link { font-size: 13px; font-weight: 600; color: var(--accent); }
         .accent-link:hover { text-decoration: underline; }
@@ -619,6 +625,11 @@
             .tile, .hero-links a, .jump-links button, .project-nav-item, .magnetic { transition: none; }
         }
     </style>
+
+    <!-- Vercel Web Analytics: cookie-free, no consent banner needed. Requires
+         enabling "Web Analytics" for this project in the Vercel dashboard —
+         the script is a no-op until then. See SETUP.md. -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
     <canvas id="bg-net" aria-hidden="true"></canvas>
@@ -631,6 +642,7 @@
             <span class="nav-pill" id="nav-pill" aria-hidden="true"></span>
             <button data-view="home">Home</button>
             <button data-view="projects">Projects</button>
+            <button data-view="experience">Experience</button>
             <button data-view="research">Research</button>
             <button data-view="education">Education</button>
             <button data-view="writing">Writing</button>
@@ -661,7 +673,7 @@
 
     <script>
     (function () {
-        var VIEWS = ['home', 'projects', 'research', 'education', 'writing', 'contact'];
+        var VIEWS = ['home', 'projects', 'experience', 'research', 'education', 'writing', 'contact'];
         var app = document.getElementById('app');
         var topnav = document.getElementById('topnav');
         var navPill = document.getElementById('nav-pill');
@@ -967,6 +979,17 @@
             return html;
         }
 
+        function renderExperience() {
+            return '<div class="grid"><div class="tile span-12" style="--i:0"><h2 class="section-title">Work Experience</h2><div class="timeline">' +
+                (DATA.experience || []).map(function (e) {
+                    return '<div class="timeline-item exp-item">' +
+                        '<h3>' + esc(e.role) + '</h3>' +
+                        '<p class="exp-org">' + esc(e.org) + ' · ' + esc(e.period) + '</p>' +
+                        '<ul class="exp-points">' + (e.points || []).map(function (pt) { return '<li>' + esc(pt) + '</li>'; }).join('') + '</ul>' +
+                    '</div>';
+                }).join('') + '</div></div></div>';
+        }
+
         function renderEducation() {
             return '<div class="grid"><div class="tile span-12" style="--i:0"><h2 class="section-title">Education & Credentials</h2><div class="timeline">' +
                 DATA.education.map(function (e) {
@@ -1112,7 +1135,7 @@
                 'Couldn’t send right now — email me directly at ' + email + '.');
         }
 
-        var RENDERERS = { home: renderHome, projects: renderProjects, research: renderResearch, education: renderEducation, writing: renderWriting, contact: renderContact };
+        var RENDERERS = { home: renderHome, projects: renderProjects, experience: renderExperience, research: renderResearch, education: renderEducation, writing: renderWriting, contact: renderContact };
 
         var finePointer = window.matchMedia('(pointer: fine)').matches;
 

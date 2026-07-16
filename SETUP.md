@@ -12,6 +12,16 @@ email approval → auto-publish) needs four secrets that only you can create, ad
 | `RESEND_API_KEY` | Sends you the daily review email | [resend.com](https://resend.com) → API Keys. Free tier's `onboarding@resend.dev` sender works fine for emailing yourself — no domain verification needed to start |
 | `APPROVAL_SECRET` | Signs the Publish/Skip links in the email so they can't be forged | Any long random string, e.g. `openssl rand -hex 32` |
 
+## Analytics
+
+Both `index.html` and `thesis.html` load `/_vercel/insights/script.js` — enable
+**Web Analytics** for this project under the Vercel dashboard's Analytics tab and
+it starts recording automatically. Cookie-free, no consent banner needed, nothing
+to configure in code. Note: since `thesis.html` is also embedded via iframe inside
+the portfolio's Research view, opening that tab counts as a `thesis.html` pageview
+too — that's intentional signal for "did visitors actually engage with the demo,"
+not double-counting to worry about.
+
 Also set:
 - `OWNER_EMAIL` = `briaynomwamba@gmail.com`
 - `SITE_URL` = `https://port-three-taupe.vercel.app`
@@ -41,12 +51,20 @@ Also set:
 - **Gated CV** (`/api/cv`): a visitor requests your CV with name/email/reason; you get
   an email with an Approve button; clicking it emails them the `CV_URL` link. No
   approval, no CV. Signed tokens, 14-day expiry, no database.
+- **CV parser** (`/api/cv-sync`): reads the PDF at `CV_URL` (via Claude's native PDF
+  support) and drafts updated `experience`/`education`/`focusAreas` entries in the
+  site's existing voice, then emails an Approve link — same human-in-the-loop
+  pattern as the project scanner, so a new CV never auto-publishes without a look
+  first. Not on a schedule yet (there's no "CV changed" signal to poll); trigger it
+  manually after updating your CV:
+  ```
+  curl -X POST https://your-site.vercel.app/api/cv-sync \
+    -H "Authorization: Bearer $CRON_SECRET"
+  ```
+  or POST `{"text": "...pasted CV text..."}` instead of relying on `CV_URL`/PDF fetch.
 
 ## Known gaps / next decisions
 
-- **CV tracking** isn't wired up yet — I don't know where your CV lives (a repo? a
-  Google Drive link? a specific file path?). Once you tell me, the same scan job can
-  watch it and email you when it changes.
 - **Sheria AI** has no confirmed repo slug in `data/known-repos.json` yet, so the first
   scan may flag it as "new" once — just click Skip or Publish and it'll settle.
 - The GitHub token's scan endpoint is currently uncapped at 5 new repos per run

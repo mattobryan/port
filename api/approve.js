@@ -8,12 +8,14 @@ function page(title, body, ok) {
   <body><div class="icon">${ok ? '✅' : '⚠️'}</div><h1>${title}</h1><p>${body}</p></body></html>`;
 }
 
+const VALID_ACTIONS = ['publish', 'skip', 'cv-sync'];
+
 module.exports = async (req, res) => {
   const { token } = req.query;
   let payload;
   try {
     payload = verifyToken(token);
-    if (payload.action !== 'publish' && payload.action !== 'skip') {
+    if (VALID_ACTIONS.indexOf(payload.action) === -1) {
       // Rejects tokens minted for a different endpoint (e.g. api/cv.js's 'cv'
       // action) that happen to verify against the same shared secret.
       throw new Error(`This link isn't a project approval link (action: ${payload.action}).`);
@@ -23,13 +25,29 @@ module.exports = async (req, res) => {
     return res.status(400).send(page('Link invalid or expired', e.message, false));
   }
 
+  res.setHeader('Content-Type', 'text/html');
+
+  if (payload.action === 'cv-sync') {
+    try {
+      const projectsFile = await getFile('data/projects.json');
+      if (!projectsFile.json) throw new Error('data/projects.json is missing or unreadable — nothing was updated.');
+      const projectsJson = projectsFile.json;
+      if (payload.draft.experience) projectsJson.experience = payload.draft.experience;
+      if (payload.draft.education) projectsJson.education = payload.draft.education;
+      if (payload.draft.focusAreas) projectsJson.focusAreas = payload.draft.focusAreas;
+      await putFile('data/projects.json', projectsJson, projectsFile.sha, 'Update experience/education/focus areas from CV (email-approved)');
+      return res.status(200).send(page('CV changes applied', 'Experience, education, and focus areas were updated from your CV. Vercel is redeploying now.', true));
+    } catch (e) {
+      return res.status(500).send(page('Something went wrong', e.message, false));
+    }
+  }
+
   try {
     const known = await getFile('data/known-repos.json');
     const knownJson = known.json || { repos: [] };
     const existing = knownJson.repos.find((r) => r.repo === payload.repo);
 
     if (existing && existing.status === (payload.action === 'publish' ? 'published' : 'dismissed')) {
-      res.setHeader('Content-Type', 'text/html');
       return res.status(200).send(page('Already handled', `${payload.repo} was already ${existing.status} on ${existing.updatedAt}.`, true));
     }
 
@@ -52,13 +70,11 @@ module.exports = async (req, res) => {
     }
     await putFile('data/known-repos.json', knownJson, known.sha, `Mark ${payload.repo} as ${payload.action === 'publish' ? 'published' : 'dismissed'}`);
 
-    res.setHeader('Content-Type', 'text/html');
     if (payload.action === 'publish') {
       return res.status(200).send(page('Published!', `${payload.repo} was added to the portfolio. Vercel is redeploying now — it should be live within a minute.`, true));
     }
     return res.status(200).send(page('Skipped', `${payload.repo} won't be suggested again unless it changes.`, true));
   } catch (e) {
-    res.setHeader('Content-Type', 'text/html');
     return res.status(500).send(page('Something went wrong', e.message, false));
   }
 };
